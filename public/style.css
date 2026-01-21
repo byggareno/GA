@@ -1,19 +1,39 @@
 *{
     text-decoration: none;
     color: black;
+    margin: 0;
 }
 
 .linkDiv{
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1fr 1fr 4fr 1fr 1fr;
     display: grid;
     font-size: 2vh;
+    text-align: center;
+    padding: 2%;
 }
 
-.rightLeaning{
-text-align: right;
+.linkDiv h1{
+    font-size: 6vh;
 }
 
-.leftLeaning{
-text-align: left;
+.error{
+    text-align: center;
+    color: rgba(196, 0, 0, 0.83);
+}
 
+.success{
+    text-align: center;
+    color: rgba(0, 150, 40, 0.83);
+}
+
+
+main{
+    place-items: center;
+}
+
+form{
+    grid-template-columns: repeat(1,1fr);
+    display: grid;
+    width: 40%;
+    row-gap: 5px;
 }
