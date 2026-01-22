@@ -1,47 +1,70 @@
-const express = require("express");
+//Misc
 require("dotenv").config()
 const path = require("path");
-const { Server } = require("socket.io");
-const { createServer } = require('node:http');
-const app = express();
-const server = createServer(app);
-const session = require("express-session")
 const fs = require("fs").promises
 const bcrypt = require("bcryptjs");
+port = process.env.port || 3456
+sessionSecret = process.env.session_sec
 
+
+//Handling Express and Sessions
+const express = require("express");
+const app = express();
+const session = require("express-session")
 app.use(express.static("public"))
-
-app.use(session({
-    secret: process.env.session_sec,
-    resave: false,
+const sessionMiddleware = session({
+    secret: sessionSecret,
+    resave: true,
     saveUninitialized: true,
     cookie: { secure: false }
-}))
-
+})
+app.use(sessionMiddleware)
 app.use(express.urlencoded({extended: true}))
 
 
 //Handle Websockets
-
-server.listen(process.env.port, () => {
+const { Server } = require("socket.io");
+const { createServer } = require('node:http');
+const server = createServer(app);
+const io = new Server(server);
+io.engine.use(sessionMiddleware);
+server.listen(port, () => {
   console.log('server is running');
 });
 
-const io = new Server(server);
 
 io.on('connection', handleConnection);
 
 function handleConnection(socket){
-    console.log("connected");
+    console.log("connected to " + (socket.request.session.username || "unkown"));
 
     socket.on("chat", handleChat);
+    socket.on("disconnect", handleDisconnect)
 }
 
-function handleChat(msg){
-    //Skica ut msg till alla uppkopplade
-    console.log("From client ",msg)
-    io.emit("chat", "from server: " + msg)
+async function handleChat(msg){
+    //Skicka iväg de som inte är inloggade
+    const tSession = this.request.session
+    if(!tSession.loggedIn) return res.redirect("/?error=Not logged in")
+    const authorId = tSession.id
+    const timeStamp = Date.now()
+    let posts = JSON.parse(await fs.readFile("posts.json"))
+    id = 0
+
+    let post = {"id": id, "author": authorId, "timeStamp": timeStamp, "content": msg}
+    posts.unshift(post)
+
+    await fs.writeFile("posts.json", JSON.stringify(posts, null, 3))
+
+    console.log("chat",tSession.username+":",msg)
+    io.emit("chat",tSession.username+": "+msg)
+
 }
+
+function handleDisconnect(event){
+    console.log("Client Disconnected")
+}
+
 
 //Render function
 async function render(req, title, script, main){
@@ -90,15 +113,20 @@ async function render(req, title, script, main){
 //Chatt
 app.get("/chat", async (req,res) => {
 
+    let posts = JSON.parse(await fs.readFile("posts.json"))
+
     //Check login
     if(!req.session.loggedIn) return res.redirect("/?error=Must be logged in to chat")
 
-    html = await render(req, "Home","client.js", `    
+    html = await render(req, "Chat","client.js", `    
         <form action="" id="form">
             <input name="msg" type="text" placeholder="Type Message">
         </form>
 
         <div id="chat"></div>
+        ${posts.forEach(element => {
+            
+        })}
     `)
     res.send(html);
 })
