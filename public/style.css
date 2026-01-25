@@ -7,7 +7,7 @@
 .linkDiv{
     grid-template-columns: 1fr 1fr 4fr 1fr 1fr;
     display: grid;
-    font-size: 2vh;
+    font-size: 3vh;
     text-align: center;
     padding: 2%;
 }
@@ -36,4 +36,38 @@ form{
     display: grid;
     width: 40%;
     row-gap: 5px;
+}
+
+
+.outerDiv{
+    grid-template-columns: repeat(1, 1fr);
+    display:  grid;
+    padding: 1%;
+    width: 70%;
+    place-items: center;
+    row-gap: 5px;
+}
+
+.innerHeader p{
+    font-size: small;
+    place-self: bottom;
+    position:absolute;
+    bottom: 1px;
+}
+
+.innerDiv{
+    border: 1px solid black;
+    padding: 1%;
+    width: 70%;
+}
+
+.innerHeader{
+    display: flex;
+    gap: 5px;
+}
+
+.positionBottom{
+    position: relative;    
+    white-space: nowrap;
+
 }

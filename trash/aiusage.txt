@@ -1,0 +1,21 @@
+Hade ett problem där min route kördes två gånger fast med olika req och förstog inte vad som hände.
+Frågade chatgpt och som såg att jag hade glömt ett / i början av min css länk vilket gjorde så den
+istället för att försöka hitta css i public folder försökte hitta den i /routens namn/style.css vilket
+fick den att köra routen två gånger
+
+Mitt git krånglade lite i början när jag skulle först spara ner det till github så frågade ai efter
+att ha sökt lite och hen fixade det efter lite fram och tillbaka. Förstår nu vad som gick fel och hur
+jag ska göra i framtiden.
+
+Efter att ha sökt runt i typ 2 timmar för ett bra sätt att separera olika websocket klienter baserat
+på deras kakor så frågade jag ai vilket gav mig ett svar jag försökte med lite men aldrig använde.
+Det slutade med att jag frågade Fredric la upp del två av websocket där han använde 
+io.engine.use(sessionMiddleware); för att koppla ihop de smidigt. Gick in på socket.io hemsidan för
+att läsa mer om det och hur det fungerar för att sen använda det.
+
+Hade problem med att min chat render gav mig Object Promise så sökte runt lite
+men hittade mest gammla lösningar, frågade chatgpt och fick reda på att istället
+för att skriva await (array.map(async el => {}))
+så skulle jag skriva await Promise.all( array.map(async el => {}) )
+Har haft detta problemet en gång tidigare men glömde lösningen
+

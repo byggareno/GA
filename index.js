@@ -33,6 +33,7 @@ server.listen(port, () => {
 });
 
 
+
 io.on('connection', handleConnection);
 
 function handleConnection(socket){
@@ -40,31 +41,56 @@ function handleConnection(socket){
 
     socket.on("chat", handleChat);
     socket.on("disconnect", handleDisconnect)
+    socket.on("loadMore", handleLoadMore)
 }
 
 async function handleChat(msg){
     //Skicka iväg de som inte är inloggade
     const tSession = this.request.session
     if(!tSession.loggedIn) return res.redirect("/?error=Not logged in")
-    const authorId = tSession.id
+    const authorId = tSession.userId
     const timeStamp = Date.now()
     let posts = JSON.parse(await fs.readFile("posts.json"))
     id = 0
 
-    let post = {"id": id, "author": authorId, "timeStamp": timeStamp, "content": msg}
+    const post = {"id": id, "author": authorId, "timeStamp": timeStamp, "content": msg}
     posts.unshift(post)
 
     await fs.writeFile("posts.json", JSON.stringify(posts, null, 3))
 
-    console.log("chat",tSession.username+":",msg)
-    io.emit("chat",tSession.username+": "+msg)
+    const SimplePost = {"author": tSession.username, "timeStamp":await timeSinceTime(timeStamp), "content": msg}
+    console.log("chat",SimplePost)
+    io.emit("chat",SimplePost)
 
 }
 
-function handleDisconnect(event){
+async function handleDisconnect(event){
     console.log("Client Disconnected")
 }
 
+async function handleLoadMore(event){
+    console.log(this.request.session.username + " Wants chats from " + event)
+    let posts = JSON.parse(await fs.readFile("posts.json"))
+    posts = posts.slice(event, event+10)
+    const users = JSON.parse(await fs.readFile("users.json"))
+
+
+    posts = await Promise.all( posts.map(async p => {
+        const user = users.find(c => c.id == p.author)
+        let author = "Unkown"
+        if(user) author = user.username
+
+        const timeStamp = await timeSinceTime(p.timeStamp) || "Unkown"
+
+        newmsg = {"author": author, "timeStamp": timeStamp, "content": p.content}
+        console.log(newmsg)
+        return newmsg
+    }))
+
+    console.log(posts)
+    this.emit("moreChats", posts)
+
+}
 
 //Render function
 async function render(req, title, script, main){
@@ -108,12 +134,63 @@ async function render(req, title, script, main){
     return htmlText
 }
 
+//Helt importerad från mitt halvkursprojekt
+//Turns a Date.now() number a string displaying the time since the original number was made
+async function timeSinceTime(time){
+    let timeT = Math.floor((Date.now() - time)/1000)
+            if(timeT > 31557599){
+                year = Math.floor(timeT/31557600)
+                timeT -= year*31557600
+                month = Math.floor(timeT/2591999)
+                if(year > 1){
+                    newTimeT = year + "years " + month + "mon"
+                }
+                else{
+                    newTimeT = year + "year " + month + "mon"
+                }
+            }
+            else if (timeT > 2592000){
+                month = Math.floor(timeT/2591999)
+                timeT -= month*2592000
+                day = Math.floor(timeT/86400)
+                newTimeT = month + "mon " + day + "d"
+            }
+            else if(timeT > 86399){
+                day = Math.floor(timeT/86400)
+                timeT -= day*86400
+                hour = Math.floor(timeT/3600)
+                newTimeT = day + "d " + hour + "h" 
+            }
+            else if(timeT > 3599){
+                hour = Math.floor(timeT/3600)
+                timeT -= hour*3600
+                min = Math.floor(timeT/60)
+                timeT -= min*60
+                newTimeT = hour + "h " + min + "m"
+            }
+            else if(timeT > 59){
+                min = Math.floor(timeT/60)
+                timeT -= min*60
+                newTimeT = min + "m " + timeT + "s"
+            }
+            else{
+                newTimeT = timeT + "s"
+            }
+    return newTimeT
+}
+
+
+
+
 //Routes
 
 //Chatt
 app.get("/chat", async (req,res) => {
 
     let posts = JSON.parse(await fs.readFile("posts.json"))
+    let users = JSON.parse(await fs.readFile("users.json"))
+
+    posts = posts.slice(0,10)
 
     //Check login
     if(!req.session.loggedIn) return res.redirect("/?error=Must be logged in to chat")
@@ -124,9 +201,45 @@ app.get("/chat", async (req,res) => {
         </form>
 
         <div id="chat"></div>
-        ${posts.forEach(element => {
-            
-        })}
+        
+        <div class="outerDiv">
+            ${(await Promise.all( 
+                posts.map (async el => {
+                    const user = users.find(c => c.id == el.author) || "Unkown"
+                    const authorName = user.username || "Unkown"
+                    
+                    return `
+                    <div class="innerDiv">
+                        <div class="innerHeader">
+                            <div class="profilePicture">
+
+                            </div>
+                            <h3>
+                                ${authorName}
+                            </h3>
+                            <div class = "positionBottom">
+                                <p>
+                                    ${await timeSinceTime(el.timeStamp)}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="innerMain">
+                            <p>
+                                ${el.content}
+                            </p>
+                        </div>
+                    </div>`
+                })
+            )).join("")}
+        </div>
+
+    <div class="bottomDiv">
+        <h3 id="bottomInfo">Your website is stuck</h3>
+        <button id="LoadButton"> Click to force loading more </button>
+    </div>
+    <br>
+
+
     `)
     res.send(html);
 })
