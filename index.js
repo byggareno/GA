@@ -2,6 +2,7 @@
 require("dotenv").config()
 const fs = require("fs").promises
 const bcrypt = require("bcryptjs");
+const escape = require("escape-html");
 port = process.env.port || 3456
 sessionSecret = process.env.session_sec
 
@@ -68,7 +69,7 @@ async function handleChat(msg){
     await fs.writeFile("data/posts.json", JSON.stringify(posts, null, 3))
 
     //Create simpler post to send to clients in the same room
-    const SimplePost = {"author": tSession.username, "timeStamp":await timeSinceTime(timeStamp), "content": msg}
+    const SimplePost = {"author": escape(tSession.username), "timeStamp":escape(await timeSinceTime(timeStamp)), "content": escape(msg)}
     console.log(`in ${socketRoom} ${SimplePost.author} posted ${SimplePost.content}`)
     io.to(socketRoom).emit("chat",SimplePost)
 }
@@ -91,6 +92,8 @@ async function handleLoadMoreRooms(event){
         r.posts = revPosts.length
         if(r.posts) r.timeSince = await timeSinceTime(revPosts[0].timeStamp) + " since last post"
         else r.timeSince = "No posts"
+        r.name = escape(r.name)
+        r.desc = escape(r.desc)
         return r
     }))
     
@@ -113,8 +116,9 @@ async function handleLoadMoreChats(event){
         if(user) author = user.username
 
         const timeStamp = await timeSinceTime(p.timeStamp) || "Unkown"
+        
+        newmsg = {"author": escape(author), "timeStamp": timeStamp, "content": escape(p.content)}
 
-        newmsg = {"author": author, "timeStamp": timeStamp, "content": p.content}
         return newmsg
     }))
 
@@ -133,7 +137,7 @@ async function render(req, title, script, main){
     else htmlText = htmlText.replace("%VarScript%", "")
     //Set Header which changes based on logged in status
     if(!req.session.loggedIn){
-        htmlText = htmlText.replace("%VarHeader%", `
+        htmlText = htmlText.replace("%VarHeader%",`
         <nav>
             <div class="linkDiv">
                 <a href="/"><h3>HOME</h3></a>
@@ -152,7 +156,7 @@ async function render(req, title, script, main){
                 <a href="/"><h3>HOME</h3></a>
                 <a href="/roomList"><h3>CHAT</h3></a>
                 <h1>Home page</h1>    
-                <a href="/profile/${req.session.userId}"><h3 >PROFILE</h3></a>
+                <a href="/profile/${escape(req.session.userId)}"><h3 >PROFILE</h3></a>
                 <a href="/processLogout"><h3 >LOGOUT</h3></a>
             </div>
         </nav>
@@ -210,8 +214,6 @@ async function timeSinceTime(time){
 }
 
 
-
-
 //Routes
 
 //Room List
@@ -236,8 +238,8 @@ app.get("/roomList", async (req,res) => {
 
     html = await render(req, "Rooms List","roomList.js",`
         
-        <p class="error">${errorText}</p>
-        <p class="success">${successText}</p>
+        <p class="error">${escape(errorText)}</p>
+        <p class="success">${escape(successText)}</p>
 
         <form action="createRoom" method="post">
             <input type="text" name="name" placeholder="Room Name">
@@ -260,12 +262,12 @@ app.get("/roomList", async (req,res) => {
 
                             </div>
                             <h3>
-                                ${name}
+                                ${escape(name)}
                             </h3>
                             <div class = "positionBottom">
                                 <p>
-                                    ${timeSince}
-                                    ||| ${posts + " posts"}
+                                    ${escape(timeSince)}
+                                    ||| ${escape(posts) + " posts"}
                                 </p>
 
 
@@ -273,7 +275,7 @@ app.get("/roomList", async (req,res) => {
                         </div>
                         <div class="innerMain">
                             <p>
-                                ${desc}
+                                ${escape(desc)}
                             </p>
                             <a href="room/${id}">Enter Room</a>
                         </div>
@@ -349,17 +351,17 @@ app.get("/room/:id", async (req,res) => {
 
                             </div>
                             <h3>
-                                ${authorName}
+                                ${escape(authorName)}
                             </h3>
                             <div class = "positionBottom">
                                 <p>
-                                    ${await timeSinceTime(el.timeStamp)}
+                                    ${escape(await timeSinceTime(el.timeStamp))}
                                 </p>
                             </div>
                         </div>
                         <div class="innerMain">
                             <p>
-                                ${el.content}
+                                ${escape(el.content)}
                             </p>
                         </div>
                     </div>`
@@ -390,8 +392,8 @@ app.get("/", async (req, res) => {
     html = await render(req, "Home","", `
         <p class="error">%VarError%</p>
         <p class="success">%VarSuccess%</p>
-        <h3> ${name}</h3>
-        `.replace("%VarError%",errorText).replace("%VarSuccess%",successText))
+        <h3> ${escape(name)}</h3>
+        `.replace("%VarError%",errorText).replace("%VarSuccess%",escape(successText)))
     res.send(html);
 });
 
@@ -410,7 +412,7 @@ app.get("/register", async (req, res) => {
         <input type="password" name="password" placeholder="Password">
         <input type="submit">
     </form>
-        `.replace("%VarError%",errorText))
+        `.replace("%VarError%",escape(errorText)))
 
     //Send html
     res.send(html);
@@ -456,7 +458,7 @@ app.get("/login", async (req, res) => {
         <input type="password" name="password" placeholder="Password">
         <input type="submit">
     </form>
-        `.replace("%VarError%",errorText).replace("%VarSuccess%",successText))
+        `.replace("%VarError%",errorText).replace("%VarSuccess%",escape(successText)))
 
     //Send html
     res.send(html);
