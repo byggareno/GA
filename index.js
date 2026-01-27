@@ -1,6 +1,5 @@
 //Misc
 require("dotenv").config()
-const path = require("path");
 const fs = require("fs").promises
 const bcrypt = require("bcryptjs");
 port = process.env.port || 3456
@@ -25,7 +24,6 @@ app.use(express.urlencoded({extended: true}))
 //Handle Websockets
 const { Server } = require("socket.io");
 const { createServer } = require('node:http');
-const { promises } = require("node:dns");
 const server = createServer(app);
 const io = new Server(server);
 io.engine.use(sessionMiddleware);
