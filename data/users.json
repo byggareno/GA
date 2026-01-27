@@ -3,42 +3,48 @@
       "id": 1769015182417,
       "email": "simonstrand11@gmail.com",
       "username": "Simon Strand",
-      "password": "1234"
+      "password": "$2b$12$g4F8TDtok6PsqFv5mME/IuDp0C0PK7aK0yMTjXoWEd5CD2Wg8mnPq"
    },
    {
       "id": 1769015205150,
       "email": "simonstrand12@gmail.com",
       "username": "Simon Strand",
-      "password": "1234"
+      "password": "$2b$12$z0l1RaNisbroNtwDoUwkrOjnqYndusETkTAi0cVxHgi5Fpbo3cDsC"
    },
    {
       "id": 1769018319740,
       "email": "simonstrand13@gmail.com",
       "username": "wdawdasd",
-      "password": "1234"
+      "password": "$2b$12$JnzHK6YdPvbST5PoTtEu3ONF/LgF86UMxeSZcJi0FKZIvBlFozk8u"
    },
    {
       "id": 1769022200333,
       "email": "simonstrand15@gmail.com",
       "username": "1231242135123",
-      "password": "1234"
+      "password": "$2b$12$XjJ7NeVAhejcP/sEoksaXu/ncD.rKf0PdM87kMTXV8AV2Zgmu2D5m"
    },
    {
       "id": 1769266193198,
       "email": "simonstrand10@gmail.com",
       "username": "Namn test",
-      "password": "1234"
+      "password": "$2b$12$.sC8gwVKEhHf8w7ra6zRJu3sMNJhDI4rge5c6LyrHzUrDgyLMz7UG"
    },
    {
       "id": 1769267289760,
       "email": "simonstrand9@gmail.com",
       "username": "Äckligt Edge Konto",
-      "password": "1234"
+      "password": "$2b$12$BjDSgADiMtOmO65/Zyc6qOiqRfDJp7gH.TUFB6khm35ebhJO5AG1W"
    },
    {
       "id": 1769348401386,
       "email": "love@gmail.com",
       "username": "Love Alexanders Impersenator",
-      "password": "1234"
+      "password": "$2b$12$htj2jp/DhKFq/RmhX3diwOncxZyB1Pc81Ldd1Jr5p9biMqwc0206q"
+   },
+   {
+      "id": 1769435406969,
+      "email": "alepan@gmail.com",
+      "username": "Ability Power",
+      "password": "$2b$12$05xx6.fKXLF9oHTIKgew/uEO9NMwHx1y0SEGvn.gHvd4RiPrknezy"
    }
 ]

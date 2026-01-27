@@ -303,3 +303,336 @@ DR9rx%2BIIj6yCJy20x0'
   Symbol(shapeMode): false,
   Symbol(kCapture): false
 }
+
+
+{
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769430580200,
+      "content": "wdasdwd"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769430407464,
+      "content": "dwasd"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769430179369,
+      "content": "dawdasd"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769430112850,
+      "content": "dwasdw"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769414412305,
+      "content": "jyhfthft"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769364317158,
+      "content": "Test"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769348498899,
+      "content": ":)("
+   },
+   {
+      "id": 0,
+      "author": 1769348401386,
+      "timeStamp": 1769348479416,
+      "content": "Nah jk"
+   },
+   {
+      "id": 0,
+      "author": 1769348401386,
+      "timeStamp": 1769348470821,
+      "content": "Si"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769348469073,
+      "content": "Eller är det det?"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769348465901,
+      "content": "Hoppsan det är Love"
+   },
+   {
+      "id": 0,
+      "author": 1769348401386,
+      "timeStamp": 1769348424641,
+      "content": "Hallå där Simonaoiwndawd"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769348044509,
+      "content": "ter"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769348044038,
+      "content": "per"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769348041334,
+      "content": "JagMårBra ver"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769348028554,
+      "content": "Hola her"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769348019867,
+      "content": "Hallå der"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769345889211,
+      "content": "eqdawd"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769343933259,
+      "content": "wdasdw"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267545512,
+      "content": "wasdwdasd"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267334328,
+      "content": ":((((())))"
+   },
+   {
+      "id": 0,
+      "author": 1769267289760,
+      "timeStamp": 1769267321330,
+      "content": "MUAHAHAHAHAHHAHA"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267312145,
+      "content": "AAAH!"
+   },
+   {
+      "id": 0,
+      "author": 1769267289760,
+      "timeStamp": 1769267309176,
+      "content": "Buuuoohohoo Jag kommer från Edge"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267090099,
+      "content": "dawdasdwd"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267075223,
+      "content": "Test"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267067741,
+      "content": "Hello does this work"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267061984,
+      "content": "wdasd"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267041764,
+      "content": "adwsda"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769267036968,
+      "content": "dwasdwdsdw"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769266954872,
+      "content": "Hallå"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769266880128,
+      "content": "test"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769266515824,
+      "content": "Big"
+   },
+   {
+      "id": 0,
+      "author": 1769266193198,
+      "timeStamp": 1769266507808,
+      "content": "Aa det gör dom"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769266497801,
+      "content": "Namn fungerar tror jag"
+   },
+   {
+      "id": 0,
+      "author": 1769015182417,
+      "timeStamp": 1769266488789,
+      "content": "dwasdwd"
+   },
+   {
+      "id": 0,
+      "author": "xXTOdjn9fJbs1gXfa_ZUCpHrgFjicziF",
+      "timeStamp": 1769266199729,
+      "content": "Test"
+   },
+   {
+      "id": 0,
+      "author": "Arwe1bNolzxxqHe2kruIIYPVSWyxSAZ8",
+      "timeStamp": 1769265273172,
+      "content": "This is a really long text and i wanna know if this works and how it will look if This is a really long text and i wanna know if this works and how it will look if This is a really long text and i wanna know if this works and how it will look if This is a really long text and i wanna know if this works and how it will look if This is a really long text and i wanna know if this works and how it will look if This is a really long text and i wanna know if this works and how it will look if This is a really long text and i wanna know if this works and how it will look if This is a really long text and i wanna know if this works and how it will look if"
+   },
+   {
+      "id": 0,
+      "author": "Arwe1bNolzxxqHe2kruIIYPVSWyxSAZ8",
+      "timeStamp": 1769264688394,
+      "content": "dawdasd"
+   },
+   {
+      "id": 0,
+      "author": "1Vd52RUu9Z8aG8f4ZEn8agr4Y_lbpP0r",
+      "timeStamp": 1769111978050,
+      "content": "wdasd"
+   },
+   {
+      "id": 0,
+      "author": "53Ai4sH6wBCGOJhLSLVKBLKnwullEfmi",
+      "timeStamp": 1769092161489,
+      "content": "iubdawdibd"
+   },
+   {
+      "id": 0,
+      "author": "53Ai4sH6wBCGOJhLSLVKBLKnwullEfmi",
+      "timeStamp": 1769092156178,
+      "content": "dwasdwd"
+   },
+   {
+      "id": 0,
+      "author": "42ZLo_8iuN8AhQlDB0rT1QaeBPxwi3Mc",
+      "timeStamp": 1769092047018,
+      "content": "awdawd"
+   },
+   {
+      "id": 0,
+      "author": "42ZLo_8iuN8AhQlDB0rT1QaeBPxwi3Mc",
+      "timeStamp": 1769092057472,
+      "content": "Does This Save?"
+   },
+   {
+      "id": 0,
+      "author": "42ZLo_8iuN8AhQlDB0rT1QaeBPxwi3Mc",
+      "timeStamp": 1769092062816,
+      "content": "dabwudb"
+   }
+
+
+//Chatt
+app.get("/chat", async (req,res) => {
+
+    let posts = JSON.parse(await fs.readFile("data/posts.json"))
+    let users = JSON.parse(await fs.readFile("data/users.json"))
+
+    posts = posts.slice(0,10)
+
+    //Check login
+    if(!req.session.loggedIn) return res.redirect("/?error=Must be logged in to chat")
+
+    html = await render(req, "Chat","client.js", `    
+        <form action="" id="form">
+            <input name="msg" type="text" placeholder="Type Message">
+        </form>
+
+        <div id="chat"></div>
+        
+        <div class="outerDiv">
+            ${(await Promise.all( 
+                posts.map (async el => {
+                    const user = users.find(c => c.id == el.author) || "Unkown"
+                    const authorName = user.username || "Unkown"
+                    
+                    return `
+                    <div class="innerDiv">
+                        <div class="innerHeader">
+                            <div class="profilePicture">
+
+                            </div>
+                            <h3>
+                                ${authorName}
+                            </h3>
+                            <div class = "positionBottom">
+                                <p>
+                                    ${await timeSinceTime(el.timeStamp)}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="innerMain">
+                            <p>
+                                ${el.content}
+                            </p>
+                        </div>
+                    </div>`
+                })
+            )).join("")}
+        </div>
+
+    <div class="bottomDiv">
+        <h3 id="bottomInfo">Your website is stuck</h3>
+        <button id="LoadButton"> Click to force loading more </button>
+    </div>
+    <br>
+
+
+    `)
+    res.send(html);
+})
