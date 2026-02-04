@@ -1,4 +1,5 @@
 //Definera lite variabler
+
 const outerDiv = document.querySelector(".outerDiv")
 
 //Koppla upp oss med websockets

@@ -636,3 +636,84 @@ app.get("/chat", async (req,res) => {
     `)
     res.send(html);
 })
+
+app.get("/roomList", async (req,res) => {
+
+    let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
+    const posts = JSON.parse(await fs.readFile("data/posts.json"))
+
+    //Updaterar rummens posts och timeSince så den visas rätt. Updateras inte live dock
+    rooms = await Promise.all(rooms.map(async r => {
+        revPosts = posts.filter(p => (p.id == r.id))
+        r.posts = revPosts.length
+        if(r.posts) r.timeSince = await timeSinceTime(revPosts[0].timeStamp) + " since last post"
+        else r.timeSince = "No posts"
+        return r
+    }))
+    const extendedRooms = rooms
+    console.log(extendedRooms)
+    rooms = rooms.slice(0,10)
+
+    let errorText = req.query.error || "";
+    let successText = req.query.success || "";
+
+    html = await render(req, "Rooms List","roomList.js",`
+
+        <script>let roomList = ${JSON.stringify(extendedRooms)}</script>
+        
+        <p class="error">${escape(errorText)}</p>
+        <p class="success">${escape(successText)}</p>
+
+        <form action="createRoom" method="post">
+            <input type="text" name="name" placeholder="Room Name">
+            <input type="text" name="desc" placeholder="Description">
+            <input type="submit" value="Create Room">
+        </form>
+        
+        <div class="outerDiv">
+            ${(await Promise.all( 
+                rooms.map (async el => {
+                    const name = el.name
+                    const desc = el.desc
+                    const posts = el.posts
+                    const timeSince = el.timeSince
+                    const id = el.id
+                    return `
+                    <div class="innerDiv">
+                        <div class="innerHeader">
+                            <div class="profilePicture">
+
+                            </div>
+                            <h3>
+                                ${escape(name)}
+                            </h3>
+                            <div class = "positionBottom">
+                                <p>
+                                    ${escape(timeSince)}
+                                    ||| ${escape(posts) + " posts"}
+                                </p>
+
+
+                            </div>
+                        </div>
+                        <div class="innerMain">
+                            <p>
+                                ${escape(desc)}
+                            </p>
+                            <a href="room/${id}">Enter Room</a>
+                        </div>
+                    </div>`
+                })
+            )).join("")}
+        </div>
+
+    <div class="bottomDiv">
+        <h3 id="bottomInfo">Your website is stuck</h3>
+        <button id="LoadButton"> Click to force loading more </button>
+    </div>
+    <br>
+        `)
+
+    res.send(html)
+
+})

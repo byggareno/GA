@@ -29,7 +29,7 @@ const server = createServer(app);
 const io = new Server(server);
 io.engine.use(sessionMiddleware);
 server.listen(port, () => {
-  console.log('server is running on port ' + port);
+    console.log('server is running on port ' + port);
 });
 
 //Connecting to client
@@ -44,10 +44,30 @@ function handleConnection(socket){
 
     //Fixing all socket.on's/connections/whateveryouwanttocallthem
     socket.on("chat", handleChat);
+    socket.on("newRoomCreated", handleCreateRoom)
     socket.on("disconnect", handleDisconnect)
     socket.on("loadMoreChats", handleLoadMoreChats)
     socket.on("loadMoreRooms", handleLoadMoreRooms)
 
+}
+
+//Recives room
+async function handleCreateRoom(room){
+
+    //Skicka iväg de som inte är inloggade
+    const tSession = this.request.session
+    if(!tSession.loggedIn) console.log(("error", "must be logged in")) 
+    if(!tSession.loggedIn) return this.emit("error", "must be logged in")
+    
+
+    console.log(room)
+    let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
+    rooms.push(room)
+    await fs.writeFile("data/rooms.json", JSON.stringify(rooms, null, 3))
+
+    //Create simpler post to send to clients in the same room
+    console.log(`${this.request.session.username} created room : ${room.name}`)
+    io.emit("roomToClient", room)
 }
 
 //Recives chat
@@ -142,7 +162,7 @@ async function render(req, title, script, main){
             <div class="linkDiv">
                 <a href="/"><h3>HOME</h3></a>
                 <a href="/roomList"><h3>CHAT</h3></a>
-                <h1>Home page</h1>    
+                <h1>${title}</h1>    
                 <a href="/login"><h3 >LOGIN</h3></a>
                 <a href="/register"><h3 >REGISTER</h3></a>
             </div>
@@ -155,7 +175,7 @@ async function render(req, title, script, main){
             <div class="linkDiv">
                 <a href="/"><h3>HOME</h3></a>
                 <a href="/roomList"><h3>CHAT</h3></a>
-                <h1>Home page</h1>    
+                <h1>${title}</h1>    
                 <a href="/profile/${escape(req.session.userId)}"><h3 >PROFILE</h3></a>
                 <a href="/processLogout"><h3 >LOGOUT</h3></a>
             </div>
@@ -226,62 +246,41 @@ app.get("/roomList", async (req,res) => {
     rooms = await Promise.all(rooms.map(async r => {
         revPosts = posts.filter(p => (p.id == r.id))
         r.posts = revPosts.length
-        if(r.posts) r.timeSince = await timeSinceTime(revPosts[0].timeStamp) + " since last post"
-        else r.timeSince = "No posts"
+        if(r.posts) r.timeSince = (revPosts[0].timeStamp)
+        r.name = escape(r.name)
+        r.desc = escape(r.desc)
         return r
     }))
-
-    rooms = rooms.slice(0,10)
+    const extendedRooms = rooms
 
     let errorText = req.query.error || "";
     let successText = req.query.success || "";
 
     html = await render(req, "Rooms List","roomList.js",`
+
+        <script>let roomList = ${JSON.stringify(extendedRooms)}</script>
         
         <p class="error">${escape(errorText)}</p>
         <p class="success">${escape(successText)}</p>
 
-        <form action="createRoom" method="post">
+        <form action="createRoom" method="post" id="createRoomForm">
             <input type="text" name="name" placeholder="Room Name">
             <input type="text" name="desc" placeholder="Description">
             <input type="submit" value="Create Room">
         </form>
+
+        <div class="filters">
+            <button id="oldFilter" class="filterButton">Old</button>    
+            <button id="newFilter" class="filterButton">New</button>
+            <button id="updatedFilter" class="filterButton">Updated</button>
+            <button id="postsFilter" class="filterButton">Posts</button>
+        </div>
+
+        <form action="" id="searchForm">
+            <input type="text" placeholder="Search" name="search">
+        </form>
         
         <div class="outerDiv">
-            ${(await Promise.all( 
-                rooms.map (async el => {
-                    const name = el.name
-                    const desc = el.desc
-                    const posts = el.posts
-                    const timeSince = el.timeSince
-                    const id = el.id
-                    return `
-                    <div class="innerDiv">
-                        <div class="innerHeader">
-                            <div class="profilePicture">
-
-                            </div>
-                            <h3>
-                                ${escape(name)}
-                            </h3>
-                            <div class = "positionBottom">
-                                <p>
-                                    ${escape(timeSince)}
-                                    ||| ${escape(posts) + " posts"}
-                                </p>
-
-
-                            </div>
-                        </div>
-                        <div class="innerMain">
-                            <p>
-                                ${escape(desc)}
-                            </p>
-                            <a href="room/${id}">Enter Room</a>
-                        </div>
-                    </div>`
-                })
-            )).join("")}
         </div>
 
     <div class="bottomDiv">
@@ -307,7 +306,7 @@ app.post("/createRoom", async (req,res) => {
     if(!name) return res.redirect("/roomList?error=Room must have a name")
     const desc = req.body.desc
     if(!desc) return res.redirect("/roomList?error=Room must have a description")
-    const timeSince = "0s"
+    const timeSince = 0
     const posts = 0
     const id = Date.now()
     room = {name: name, desc: desc, timeSince: timeSince, posts: posts, id: id}
@@ -326,12 +325,15 @@ app.get("/room/:id", async (req,res) => {
     //Check login
     if(!req.session.loggedIn) return res.redirect("/?error=Must be logged in to chat")
 
+    const rooms = JSON.parse(await fs.readFile("data/rooms.json"))
+    const room = rooms.find(c => ( c.id = req.params.id))
+
     let posts = JSON.parse(await fs.readFile("data/posts.json"))
     posts = posts.filter(c => (c.id == req.params.id))
     let users = JSON.parse(await fs.readFile("data/users.json"))
     posts = posts.slice(0,10)
 
-    html = await render(req, "Chat","/client.js", `    
+    html = await render(req, room.name,"/roomChat.js", `    
         <form action="" id="form">
             <input name="msg" type="text" placeholder="Type Message">
         </form>
