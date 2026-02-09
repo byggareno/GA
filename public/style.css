@@ -50,12 +50,7 @@ form{
     row-gap: 5px;
 }
 
-.innerHeader p{
-    font-size: small;
-    place-self: bottom;
-    position:relative;
-    bottom: 1px;
-}
+
 
 .innerDiv{
     border: 1px solid black;
@@ -70,4 +65,35 @@ form{
 
 .positionBottom{
     position: relative;    
+}
+
+.positionRight{
+    margin-left: auto;
+    position: relative;
+    display: flex;
+    gap: 5px;
+}
+
+.positionRight p{
+    font-size:medium;
+    position:relative;
+    bottom: 4px;
+    color: gray;
+    font-size: smaller;
+}
+
+.positionRight input{
+    position:relative;
+    bottom: 4px;
+}
+
+
+.positionBottom p{
+    font-size: small;
+    position:relative;
+    bottom: -3px;
+}
+
+.hidden{
+    display: none;
 }

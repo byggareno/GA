@@ -323,10 +323,11 @@ app.post("/createRoom", async (req,res) => {
 app.get("/room/:id", async (req,res) => {
 
     //Check login
-    if(!req.session.loggedIn) return res.redirect("/?error=Must be logged in to chat")
+    //if(!req.session.loggedIn) return res.redirect("/?error=Must be logged in to chat")
 
     const rooms = JSON.parse(await fs.readFile("data/rooms.json"))
     const room = rooms.find(c => ( c.id = req.params.id))
+    const clientUserId = req.session.userId || 0
 
     let posts = JSON.parse(await fs.readFile("data/posts.json"))
     posts = posts.filter(c => (c.id == req.params.id))
@@ -345,7 +346,11 @@ app.get("/room/:id", async (req,res) => {
                 posts.map (async el => {
                     const user = users.find(c => c.id == el.author) || "Unkown"
                     const authorName = user.username || "Unkown"
-                    
+                    let editButton = ""
+                    if(clientUserId == user.id) editButton = "<input type='checkbox' class='editCheck'>"
+                    let edited = ""
+                    if(el.edited) edited = "(edited)"
+
                     return `
                     <div class="innerDiv">
                         <div class="innerHeader">
@@ -360,11 +365,22 @@ app.get("/room/:id", async (req,res) => {
                                     ${escape(await timeSinceTime(el.timeStamp))}
                                 </p>
                             </div>
+                            <div class = "positionRight">
+                            ${editButton}
+                                <p>
+                                    ${edited}
+                                </p>
+                            </div>
                         </div>
                         <div class="innerMain">
                             <p>
                                 ${escape(el.content)}
                             </p>
+                            <form action="" id="editForm" class="hidden">
+                                <input type="submit">
+                                <p class="originalText hidden"> ${escape(el.content)} </p>
+                                <p class="timeStamp hidden"> ${el.timeStamp} </p>
+                            </form>
                         </div>
                     </div>`
                 })

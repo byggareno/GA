@@ -46,9 +46,11 @@ function timeSinceTime(time){
 const outerDiv = document.querySelector(".outerDiv")
 let activeFilter = "Old"
 let searchFilter = ""
+let updateList = true
 
 //Tar listan roomList och skapar hemsidan från den
 function reloadRooms(){
+    if(!updateList) return
     let sortedRoomList = roomList.slice()
     sortedRoomList = sortedRoomList.filter(c => ((c.name).includes(searchFilter)))
     
