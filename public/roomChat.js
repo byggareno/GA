@@ -1,139 +1,233 @@
-//Definera lite variabler
+//Basic Variables
+    const outerDiv = document.querySelector(".outerDiv")
+    let reachedBottom = false
 
-const outerDiv = document.querySelector(".outerDiv")
 
-//Koppla upp oss med websockets
-const socket = io();
+// Basic Functions
+reloadEverything()
+setInterval(updateTimeSince, 1000)
 
-//Ganska lättläst funktion
-function sendMessage(msg){
-    socket.emit("chat", msg);
+function timeSinceTime(time){
+    if(!time) return "No posts"
+    let timeT = Math.floor((Date.now() - time)/1000)
+            if(timeT > 31557599){
+                year = Math.floor(timeT/31557600)
+                timeT -= year*31557600
+                month = Math.floor(timeT/2591999)
+                if(year > 1){
+                    newTimeT = year + "years " + month + "mon"
+                }
+                else{
+                    newTimeT = year + "year " + month + "mon"
+                }
+            }
+            else if (timeT > 2592000){
+                month = Math.floor(timeT/2591999)
+                timeT -= month*2592000
+                day = Math.floor(timeT/86400)
+                newTimeT = month + "mon " + day + "d"
+            }
+            else if(timeT > 86399){
+                day = Math.floor(timeT/86400)
+                timeT -= day*86400
+                hour = Math.floor(timeT/3600)
+                newTimeT = day + "d " + hour + "h" 
+            }
+            else if(timeT > 3599){
+                hour = Math.floor(timeT/3600)
+                timeT -= hour*3600
+                min = Math.floor(timeT/60)
+                timeT -= min*60
+                newTimeT = hour + "h " + min + "m"
+            }
+            else if(timeT > 59){
+                min = Math.floor(timeT/60)
+                timeT -= min*60
+                newTimeT = min + "m " + timeT + "s"
+            }
+            else{
+                newTimeT = timeT + "s"
+            }
+    return newTimeT
 }
 
-//När man får "chat", lägg till den högst uppe i chattfönstrer (.outerDiv)
-socket.on("chat", handleChatClient)
+function generateInnerDiv(post){
 
-function handleChatClient(msg){
-    const innerDiv  = document.createElement("div");
+    let editButtonText = ""
+    if(clientUserId == post.author.id) editButtonText = "<input type='checkbox' class='editCheck'>"
+    let edited = ""
+    if(post.edited) edited = "(edited)"
+    let innerDiv = document.createElement("div")
     innerDiv.classList.add("innerDiv")
-
-    const divContent = `
+    innerDiv.id = post.id
+    innerDiv.innerHTML = `
                         <div class="innerHeader">
                             <div class="profilePicture">
 
                             </div>
                             <h3>
-                                ${msg.author}
+                                ${post.author.username}
                             </h3>
                             <div class = "positionBottom">
+                                <p class = "timeSinceText">
+                                    ${timeSinceTime(post.timeSince)}
+                                </p>
+                            </div>
+                            <div class = "positionRight">
+                            ${editButtonText}
                                 <p>
-                                    ${msg.timeStamp}
+                                    ${edited}
                                 </p>
                             </div>
                         </div>
                         <div class="innerMain">
-                            <p>
-                                ${msg.content}
+                            <p class="contentP">
+                                ${post.content}
                             </p>
+                            <form action="" class="hidden editForm">
+                                <input type="submit">
+                            </form>
                         </div>`
+                        
+    //Skrev först detta för att få orginal texten "chatList.find(c => (c.id == innerDiv.id)).content"
+    //för jag glömde helt att post.content också borde fungera lol
 
-    innerDiv.innerHTML = divContent;
-    outerDiv.insertBefore(innerDiv, outerDiv.firstChild);
+    //If post was made by client account, add Edit button
+    if(clientUserId == post.author.id){
+        const editButton = innerDiv.querySelector(".editCheck")
+        const mainText = innerDiv.querySelector(".contentP")
+        const editForm = innerDiv.querySelector(".editForm")
+
+        editButton.addEventListener("change", (ev) => {
+            if(editButton.checked) {
+                mainText.contentEditable = true                
+                editForm.classList.remove("hidden")
+                console.log("Now editing " + innerDiv.id)
+            }
+                else {
+                mainText.contentEditable = false
+                editForm.classList.add("hidden")
+                mainText.textContent = post.content
+                console.log("Stopped editing " + innerDiv.id)
+            }
+        })
+
+        editForm.addEventListener("submit", (ev) => {
+            //Lets the client handle the form instead of redirecting to a new link
+            ev.preventDefault();
+            const newText = mainText.textContent.trim();
+            const postId = innerDiv.id
+            const originalText = post.content
+            //If new text is not empty nor the same as the original text, send to server for update processing
+            if(newText && newText.trim() != originalText.trim()) socket.emit("updateChat", {text: newText, id: postId});
+            console.log("Updated div " + innerDiv.id + " with the new text : " + newText)
+        });
+    }
+
+    return innerDiv
 }
 
-//Kod för att kunna skicka chattar till servern som sen tar hand om det (sparar och skickar tillbaka till clienter)
+function reloadEverything(){
+    outerDiv.innerHTML = ""
+    chatList.forEach(Object => {
+        outerDiv.appendChild(generateInnerDiv(Object))
+    });
+}
+
+function addToTop(Object){
+    outerDiv.insertBefore(Object,outerDiv.firstElementChild)
+}
+
+function addToBot(Object){
+    outerDiv.appendChild(Object)
+}
+
+function updateTimeSince(){
+    let childList = outerDiv.childNodes
+    childList.forEach(element => {
+        element.querySelector(".timeSinceText").textContent = timeSinceTime(element.id)
+    });
+}
+
+
+//Basic Websockets
+
+//Connect to websocket
+const socket = io();
+
+
+
+//Handle Messages
+
+//Get message from form and send to "sendMessage"
 const form = document.querySelector("#form")
 form.addEventListener("submit", (ev) => {
-    //Gör så att den inte skickar formet till servern utan istället låter clienten hantera datan
     ev.preventDefault();
     console.log(ev)
     const msg = (ev.target.msg.value).trim();
-    //Checker så att den inte skickar tomma chattar
     if(msg) sendMessage(msg)
-    //Tömmer inputen efter chatten blivit skickat
     ev.target.msg.value = ""
 });
 
-//Allt här under (tror jag) är för att ladda in mer chattar när man skrollat längst ner, detta är någorlunda kommenterat redan på roomList.js som har samma funktion.
-let reachedBottom = false
+//"sendMessage" function, sends message recived to server
+function sendMessage(msg){
+    socket.emit("chat", msg);
+}
 
+//Handles messages recived from server
+socket.on("chat", handleChatClient)
+function handleChatClient(msg){
+    console.log(msg)
+    chatList.unshift(msg)
+    addToTop(generateInnerDiv(msg))
+}
+
+
+
+//Handle Load More
+
+
+//Load more handeling
 function loadMoreChats(){
     ChildCount = outerDiv.childElementCount
+    if(reachedBottom) return
     socket.emit("loadMoreChats", ChildCount);
 }
 
-window.addEventListener("scroll", (ev) => {
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight-50 && !reachedBottom){
-        loadMoreChats()
-    }
-})
-
-button = document.querySelector("#LoadButton")
-button.addEventListener("click", loadMoreChats)
-
 socket.on("moreChats", (posts) => {
+    console.log(posts)
+    posts.forEach(element => {
+        addToBot(generateInnerDiv(element))
+        chatList.push(element)
+    });
     if(posts.length < 10){
         reachedBottom = true
         document.querySelector("#bottomInfo").textContent = "Nothing more to load"
     }
 
-    posts.forEach(el => {
-        const innerDiv  = document.createElement("div");
-        innerDiv.classList.add("innerDiv")
-
-        const divContent = `
-                            <div class="innerHeader">
-                                <div class="profilePicture">
-
-                                </div>
-                                <h3>
-                                    ${el.author}
-                                </h3>
-                                <div class = "positionBottom">
-                                    <p>
-                                        ${el.timeStamp}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="innerMain">
-                                <p>
-                                    ${el.content}
-                                </p>
-                            </div>`
-
-        innerDiv.innerHTML = divContent;
-        outerDiv.appendChild(innerDiv, outerDiv.firstChild);
-    });
 })
 
-console.log(document.querySelectorAll(".editCheck"))
-document.querySelectorAll(".editCheck").forEach(el => {
-    const innerDiv = el.parentElement.parentElement.parentElement
-        el.addEventListener("change", (ev) => {
-            if(el.checked) {
-                innerDiv.querySelector(".innerMain").firstElementChild.contentEditable = true                
-                innerDiv.querySelector("#editForm").classList.remove("hidden")
-            }
-                else {
-                innerDiv.querySelector(".innerMain").firstElementChild.contentEditable = false
-                innerDiv.querySelector("#editForm").classList.add("hidden")
-                innerDiv.querySelector(".innerMain").firstElementChild.textContent = innerDiv.querySelector(".originalText").textContent
-            }
-        })
 
-        innerDiv.querySelector("#editForm").addEventListener("submit", (ev) => {
-            //Gör så att den inte skickar formet till servern utan istället låter clienten hantera datan
-            ev.preventDefault();
-            const newText = (ev.target.parentElement.firstElementChild.textContent).trim();
-            const chatId = ev.target.querySelector(".timeStamp").textContent
-            const originalText = ev.target.parentElement.querySelector(".originalText").textContent
-            //Checker så att inte updaten är tom eller har samma som innan, om inte så skickar den updaten till servern
-            if(newText && newText.trim() != originalText.trim()) socket.emit("chatUpdate", {text: newText, id: chatId, room: document.URL.toString().split("/").reverse()[0]});
-            console.log({newText: newText, id: chatId, room: document.URL.toString().split("/").reverse()[0]})
-        });
-    });
+//Load more activations
+window.addEventListener("scroll", (ev) => {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight-50){
+        loadMoreChats()
+    }
+})
+button = document.querySelector("#LoadButton")
+button.addEventListener("click", loadMoreChats)
 
 
-function updateChat(ev){
 
-}
+//Handle Edit
+
+
+socket.on("chatUpdated", (post) => {
+    console.log(post)
+
+    document.getElementById(post.id).replaceWith(generateInnerDiv(post))
+    
+    //outerDiv.querySelector("#" + post.id) = generateInnerDiv(post)
+
+
+})

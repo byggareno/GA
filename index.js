@@ -48,6 +48,7 @@ function handleConnection(socket){
     socket.on("disconnect", handleDisconnect)
     socket.on("loadMoreChats", handleLoadMoreChats)
     socket.on("loadMoreRooms", handleLoadMoreRooms)
+    socket.on("updateChat", handleUpdateChat)
 
 }
 
@@ -73,6 +74,7 @@ async function handleCreateRoom(room){
 //Recives chat
 async function handleChat(msg){
 
+    console.log(msg)
     //Skicka iväg de som inte är inloggade
     const tSession = this.request.session
     if(!tSession.loggedIn) return console.log("Not sure how this happend")
@@ -84,14 +86,16 @@ async function handleChat(msg){
     const authorId = tSession.userId
     const timeStamp = Date.now()
     let posts = JSON.parse(await fs.readFile("data/posts.json"))
-    const post = {"id": socketRoomId, "author": authorId, "timeStamp": timeStamp, "content": msg}
+    const post = {"id": timeStamp,"roomId": socketRoomId, "author": authorId, "timeSince": timeStamp, "content": msg}
     posts.unshift(post)
     await fs.writeFile("data/posts.json", JSON.stringify(posts, null, 3))
-
+    
     //Create simpler post to send to clients in the same room
-    const SimplePost = {"author": escape(tSession.username), "timeStamp":escape(await timeSinceTime(timeStamp)), "content": escape(msg)}
-    console.log(`in ${socketRoom} ${SimplePost.author} posted ${SimplePost.content}`)
-    io.to(socketRoom).emit("chat",SimplePost)
+    const users = JSON.parse(await fs.readFile("data/users.json"))
+    let sendPost = post
+    sendPost.author = users.find(c => (c.id == sendPost.author))
+    console.log(sendPost)
+    io.to(socketRoom).emit("chat",sendPost)
 }
 
 //Handle disconnect
@@ -124,27 +128,45 @@ async function handleLoadMoreRooms(event){
 
 //Handle loading more chats
 async function handleLoadMoreChats(event){
-    //console.log(this.request.session.username + " Wants chats from " + event)
+    console.log(this.request.session.username + " Wants chats from " + event)
+    //Getting room id
+    const socketRooms = Array.from(this.rooms)
+    const socketRoom = socketRooms.find(c => c.includes("room/"))
+    const socketRoomId = socketRoom.slice(5)
+    //Fixing posts list
     let posts = JSON.parse(await fs.readFile("data/posts.json"))
+    posts = posts.filter(c => (c.roomId == socketRoomId))
     posts = posts.slice(event, event+10)
     const users = JSON.parse(await fs.readFile("data/users.json"))
-
-    //Must turn the posts into simpler posts in order for client script to interpret it
-    posts = await Promise.all( posts.map(async p => {
-        const user = users.find(c => c.id == p.author)
-        let author = "Unkown"
-        if(user) author = user.username
-
-        const timeStamp = await timeSinceTime(p.timeStamp) || "Unkown"
-        
-        newmsg = {"author": escape(author), "timeStamp": timeStamp, "content": escape(p.content)}
-
-        return newmsg
-    }))
-
+    console.log(users)
+    posts = posts.map(c => {
+        c.author = users.find(u => (u.id == c.author))
+        delete c.author.password
+        delete c.author.email
+        return c 
+    })
+    //Sending posts list
     this.emit("moreChats", posts)
-
 }
+
+async function  handleUpdateChat(event) {
+    //console.log(event)    
+    const posts = JSON.parse(await fs.readFile("data/posts.json"))
+    const users = JSON.parse(await fs.readFile("data/users.json"))
+
+    let post = posts.find(c => (c.id == event.id))
+    post.content = event.text
+    post.edited = true
+    await fs.writeFile("data/posts.json", JSON.stringify(posts, null, 3))
+
+    const socketRooms = Array.from(this.rooms)
+    const socketRoom = socketRooms.find(c => c.includes("room/"))
+    post.author = users.find(c => c.id == post.author)
+    io.to(socketRoom).emit("chatUpdated",post)
+    
+    console.log(post)
+}
+
 
 //Render function
 async function render(req, title, script, main){
@@ -244,9 +266,9 @@ app.get("/roomList", async (req,res) => {
 
     //Updaterar rummens posts och timeSince så den visas rätt. Updateras inte live dock
     rooms = await Promise.all(rooms.map(async r => {
-        revPosts = posts.filter(p => (p.id == r.id))
+        revPosts = posts.filter(p => (p.roomId == r.id))
         r.posts = revPosts.length
-        if(r.posts) r.timeSince = (revPosts[0].timeStamp)
+        if(r.posts) r.timeSince = (revPosts[0].timeSince)
         r.name = escape(r.name)
         r.desc = escape(r.desc)
         return r
@@ -330,11 +352,20 @@ app.get("/room/:id", async (req,res) => {
     const clientUserId = req.session.userId || 0
 
     let posts = JSON.parse(await fs.readFile("data/posts.json"))
-    posts = posts.filter(c => (c.id == req.params.id))
+    posts = posts.filter(c => (c.roomId == req.params.id))
     let users = JSON.parse(await fs.readFile("data/users.json"))
     posts = posts.slice(0,10)
 
-    html = await render(req, room.name,"/roomChat.js", `    
+    posts.forEach(element => {
+        const user = users.find(c => (c.id == element.author))
+        element.author = {id: user.id, username: user.username}
+    });
+
+    html = await render(req, room.name,"/roomChat.js", `   
+        
+        <script>let chatList = ${JSON.stringify(posts)}</script>
+        <script>const clientUserId = ${clientUserId}</script>
+
         <form action="" id="form">
             <input name="msg" type="text" placeholder="Type Message">
         </form>
@@ -342,49 +373,6 @@ app.get("/room/:id", async (req,res) => {
         <div id="chat"></div>
         
         <div class="outerDiv">
-            ${(await Promise.all( 
-                posts.map (async el => {
-                    const user = users.find(c => c.id == el.author) || "Unkown"
-                    const authorName = user.username || "Unkown"
-                    let editButton = ""
-                    if(clientUserId == user.id) editButton = "<input type='checkbox' class='editCheck'>"
-                    let edited = ""
-                    if(el.edited) edited = "(edited)"
-
-                    return `
-                    <div class="innerDiv">
-                        <div class="innerHeader">
-                            <div class="profilePicture">
-
-                            </div>
-                            <h3>
-                                ${escape(authorName)}
-                            </h3>
-                            <div class = "positionBottom">
-                                <p>
-                                    ${escape(await timeSinceTime(el.timeStamp))}
-                                </p>
-                            </div>
-                            <div class = "positionRight">
-                            ${editButton}
-                                <p>
-                                    ${edited}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="innerMain">
-                            <p>
-                                ${escape(el.content)}
-                            </p>
-                            <form action="" id="editForm" class="hidden">
-                                <input type="submit">
-                                <p class="originalText hidden"> ${escape(el.content)} </p>
-                                <p class="timeStamp hidden"> ${el.timeStamp} </p>
-                            </form>
-                        </div>
-                    </div>`
-                })
-            )).join("")}
         </div>
 
     <div class="bottomDiv">
@@ -525,6 +513,21 @@ app.get("/processLogout", async (req,res) => {
 
     console.log(newUsers)
     await fs.writeFile("data/users.json", JSON.stringify(newUsers, null, 3))
+    res.redirect("/")
+    
+}) */
+
+
+//Route used to add timeStamp property to posts
+/* app.get("/QuickFix", async (req,res) => {
+    let posts = JSON.parse(await fs.readFile("data/posts.json"))
+    const newPosts = await Promise.all(posts.map(async c => {
+        c.timeSince = c.id
+        return c
+
+    }))
+
+    await fs.writeFile("data/temp.json", JSON.stringify(newPosts, null, 3))
     res.redirect("/")
     
 }) */
