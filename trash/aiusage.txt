@@ -19,3 +19,5 @@ för att skriva await (array.map(async el => {}))
 så skulle jag skriva await Promise.all( array.map(async el => {}) )
 Har haft detta problemet en gång tidigare men glömde lösningen
 
+Använde copilot snabbt för att försöka kunna importera egen javascriptfil till clientscripterna för att kunna på ett cleant sätt använda escape på klientsidan.
+Tog bort allt direkt efter och valde att bara escapa allt på servernsidan istället för det kändes enklare och bättre.

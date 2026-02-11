@@ -7,13 +7,17 @@
 .linkDiv{
     grid-template-columns: 1fr 1fr 4fr 1fr 1fr;
     display: grid;
-    font-size: 2.5vw;
+    font-size: 2vw;
     text-align: center;
     padding: 2%;
+    padding-bottom: 0 ;
 }
 
 .linkDiv h1{
     font-size: 6vw;
+    position: relative;
+    bottom: 2vw;
+
 }
 
 .error{
@@ -61,10 +65,16 @@ form{
 .innerHeader{
     display: flex;
     gap: 5px;
+    min-height: 34px;
+}
+.innerMain{
+    padding: 1%;
 }
 
 .positionBottom{
     position: relative;    
+    display: flex;
+    gap: 5px;
 }
 
 .positionRight{
@@ -96,4 +106,38 @@ form{
 
 .hidden{
     display: none;
+}
+
+
+.editStyle , .deleteStyle{
+    grid-template-columns: 1fr;
+    display: grid;
+    row-gap: 5px;
+}
+
+.iconSmall{
+    font-size: 1rem !important;
+}
+
+.sendMessageForm{
+    grid-template-columns: 10fr 1fr;
+    display: grid;
+}
+
+.filters{
+    padding: 1%;
+}
+
+#filterTxt{
+    place-self: center;
+    color: darkred;
+    font-size: larger;
+}
+
+#createRoomForm{
+    width: 40vw;
+}
+
+.innerMain a{
+    color: blue;
 }

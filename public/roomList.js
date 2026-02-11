@@ -1,3 +1,55 @@
+//Escape code from escape-html
+var matchHtmlRegExp = /["'&<>]/;
+function escapeHtml(string) {
+  var str = '' + string;
+  var match = matchHtmlRegExp.exec(str);
+
+  if (!match) {
+    return str;
+  }
+
+  var escape;
+  var html = '';
+  var index = 0;
+  var lastIndex = 0;
+
+  for (index = match.index; index < str.length; index++) {
+    switch (str.charCodeAt(index)) {
+      case 34: // "
+        escape = '&quot;';
+        break;
+      case 38: // &
+        escape = '&amp;';
+        break;
+      case 39: // '
+        escape = '&#39;';
+        break;
+      case 60: // <
+        escape = '&lt;';
+        break;
+      case 62: // >
+        escape = '&gt;';
+        break;
+      default:
+        continue;
+    }
+
+    if (lastIndex !== index) {
+      html += str.substring(lastIndex, index);
+    }
+
+    lastIndex = index + 1;
+    html += escape;
+  }
+
+  return lastIndex !== index
+    ? html + str.substring(lastIndex, index)
+    : html;
+}
+
+console.log("Running")
+
+
 function timeSinceTime(time){
     if(!time) return "No posts"
     let timeT = Math.floor((Date.now() - time)/1000)
@@ -52,8 +104,28 @@ let updateList = true
 function reloadRooms(){
     if(!updateList) return
     let sortedRoomList = roomList.slice()
-    sortedRoomList = sortedRoomList.filter(c => ((c.name).includes(searchFilter)))
-    
+    //Bad filtering system
+/*     sortedRoomList = sortedRoomList.filter(c => (
+        searchlist = searchFilter.split(" ")
+        
+        (c.name).includes(searchFilter))) */
+
+    //Good filtering (but expensive to client)
+    tempList = JSON.parse(JSON.stringify(sortedRoomList))
+    sortedRoomList.forEach(room => {
+        const searchList = searchFilter.split(" ")
+        searchList.forEach(sSearch => {
+            if(!room.name.toLowerCase().includes(sSearch.toLowerCase()) && !room.desc.toLowerCase().includes(sSearch.toLowerCase())){
+                const index = tempList.map(c => {return c.id}).indexOf(room.id)
+                if(index > -1) {
+                    tempList.splice(index, 1)
+                }
+            }
+        });
+    });
+    sortedRoomList = tempList
+
+    //Sorting order
     if(activeFilter == "Old"){
         sortedRoomList.sort(function(a, b){
             return a.id - b.id
@@ -75,7 +147,7 @@ function reloadRooms(){
         })
     }
 
-    console.log("Updating Rooms")
+    //Use list that is now sorted and filtered to render html
     outerDiv.innerHTML = ""
     sortedRoomList.forEach(el => {
 
@@ -91,8 +163,10 @@ function reloadRooms(){
                                 ${el.name}
                             </h3>
                             <div class = "positionBottom">
-                                <p id="${el.timeSince}">
+                                <p id="${el.timeSince}" class="timeSinceText">
                                     ${timeSinceTime(el.timeSince)}
+                                </p>
+                                <p>
                                     : ${el.posts + " posts"}
                                 </p>
                             </div>
@@ -111,12 +185,22 @@ function reloadRooms(){
 }
 
 reloadRooms()
-setInterval(reloadRooms, 1000)
 
-//Search
-const searchForm = document.querySelector("#searchForm")
-searchForm.addEventListener("submit", handleSubmit);
-function handleSubmit(ev){
+//Update only timeSince so the timestamps can update live without having to reload everything (all filtering/sorting + rendering html)
+function updateTimeSince(){
+    let childList = outerDiv.childNodes
+    childList.forEach(element => {
+        const timeSinceP = element.querySelector(".timeSinceText")
+        if(timeSinceP.id == 0) return
+        timeSinceP.textContent = timeSinceTime(timeSinceP.id)
+    });
+}
+setInterval(updateTimeSince, 1000)
+
+//Old search
+/* const searchForm = document.querySelector("#searchForm")
+searchForm.addEventListener("submit", handleSubmitSearch);
+function handleSubmitSearch(ev){
     searchFilter = ""
     if(ev.type == "submit") console.log("It is"); reloadRooms()
     if(!(ev.type == "submit")) return searchForm.removeChild(document.querySelector("#filterTxt"))
@@ -129,10 +213,32 @@ function handleSubmit(ev){
     filterTxt.textContent = "'" + searchFilter + "'"
     filterTxt.id = "filterTxt"
     searchForm.appendChild(filterTxt)
-    filterTxt.addEventListener("click", handleSubmit)
+    filterTxt.addEventListener("click", handleSubmitSearch)
 
     reloadRooms()
+} */
+
+//Better Search
+const searchInput = document.querySelector("#searchForm").firstElementChild
+searchInput.addEventListener("input", (ev) => {
+    searchFilter = searchInput.value
+    if(!searchFilter) return removeFilter()
+    if(searchForm.querySelector("#filterTxt")) searchForm.removeChild(searchForm.querySelector("#filterTxt"))
+    filterTxt = document.createElement("p")
+    filterTxt.textContent = "'" + searchFilter + "'"
+    filterTxt.id = "filterTxt"
+    searchForm.appendChild(filterTxt)
+    filterTxt.addEventListener("click", removeFilter)
+    reloadRooms()
+})
+
+function removeFilter(){
+    searchFilter = ""
+    searchForm.removeChild(searchForm.querySelector("#filterTxt"))
+    searchInput.value = ""    
+    reloadRooms()
 }
+
 
 //Sorting filter buttons
 const oldButton = document.querySelector("#oldFilter")

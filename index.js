@@ -49,8 +49,9 @@ function handleConnection(socket){
     socket.on("loadMoreChats", handleLoadMoreChats)
     socket.on("loadMoreRooms", handleLoadMoreRooms)
     socket.on("updateChat", handleUpdateChat)
-
+    socket.on("deleteChat", handleDeleteChat)
 }
+
 
 //Recives room
 async function handleCreateRoom(room){
@@ -66,6 +67,9 @@ async function handleCreateRoom(room){
     rooms.push(room)
     await fs.writeFile("data/rooms.json", JSON.stringify(rooms, null, 3))
 
+
+    room.name = escape(room.name)
+    room.desc = escape(room.desc)
     //Create simpler post to send to clients in the same room
     console.log(`${this.request.session.username} created room : ${room.name}`)
     io.emit("roomToClient", room)
@@ -94,7 +98,9 @@ async function handleChat(msg){
     const users = JSON.parse(await fs.readFile("data/users.json"))
     let sendPost = post
     sendPost.author = users.find(c => (c.id == sendPost.author))
-    console.log(sendPost)
+    delete sendPost.author.password
+    delete sendPost.author.password
+    sendPost = await escapePost(sendPost)
     io.to(socketRoom).emit("chat",sendPost)
 }
 
@@ -128,7 +134,7 @@ async function handleLoadMoreRooms(event){
 
 //Handle loading more chats
 async function handleLoadMoreChats(event){
-    console.log(this.request.session.username + " Wants chats from " + event)
+    //console.log(this.request.session.username + " Wants chats from " + event)
     //Getting room id
     const socketRooms = Array.from(this.rooms)
     const socketRoom = socketRooms.find(c => c.includes("room/"))
@@ -138,34 +144,66 @@ async function handleLoadMoreChats(event){
     posts = posts.filter(c => (c.roomId == socketRoomId))
     posts = posts.slice(event, event+10)
     const users = JSON.parse(await fs.readFile("data/users.json"))
-    console.log(users)
-    posts = posts.map(c => {
+    posts = await Promise.all(posts.map(async c => {
+        c = await escapePost(c)
         c.author = users.find(u => (u.id == c.author))
+        if(!c.author) return c
         delete c.author.password
         delete c.author.email
         return c 
-    })
+    }))
+
     //Sending posts list
     this.emit("moreChats", posts)
 }
 
 async function  handleUpdateChat(event) {
-    //console.log(event)    
+    console.log(event)   
+
+    //Basic variables
+    const tSession = this.request.session 
     const posts = JSON.parse(await fs.readFile("data/posts.json"))
     const users = JSON.parse(await fs.readFile("data/users.json"))
-
     let post = posts.find(c => (c.id == event.id))
+    
+    //If wrong account and not admin tries to update, do nothing
+    if(!(tSession.userId == post.author || tSession.admin)) return console.log("Wrong account tried to delete post") 
+    
+    //Change post and write to file
     post.content = event.text
     post.edited = true
     await fs.writeFile("data/posts.json", JSON.stringify(posts, null, 3))
 
+    //Prepare post for websockets and send to relevant room
     const socketRooms = Array.from(this.rooms)
     const socketRoom = socketRooms.find(c => c.includes("room/"))
     post.author = users.find(c => c.id == post.author)
+    //post = escapePost(post)
+
+    post = await escapePost(post)
+
     io.to(socketRoom).emit("chatUpdated",post)
     
-    console.log(post)
+    console.log(post) 
 }
+
+async function handleDeleteChat(chatId){
+    console.log(chatId)
+    //Find post, empty it and save to file
+    const tSession = this.request.session
+    let posts = JSON.parse(await fs.readFile("data/posts.json"))
+    let post = posts.find(c => (c.id == chatId))
+    if(!post) return console.log("Tried to delete post with id that can't be found")
+    if(!(tSession.userId == post.author || tSession.admin)) return console.log("Wrong account tried to delete post") 
+    post.author = null
+    post.content = null
+    await fs.writeFile("data/posts.json", JSON.stringify(posts, null, 3))
+    //Send update in posts to clients connected to relevant room
+    const socketRooms = Array.from(this.rooms)
+    const socketRoom = socketRooms.find(c => c.includes("room/"))
+    io.to(socketRoom).emit("chatUpdated",post)
+}
+
 
 
 //Render function
@@ -256,6 +294,14 @@ async function timeSinceTime(time){
 }
 
 
+//Escape post
+async function escapePost(post){
+    if(post.content) post.content = escape(post.content)
+    if(post.author) post.author.username = escape(post.author.username)
+    return post
+}
+
+
 //Routes
 
 //Room List
@@ -285,11 +331,15 @@ app.get("/roomList", async (req,res) => {
         <p class="error">${escape(errorText)}</p>
         <p class="success">${escape(successText)}</p>
 
-        <form action="createRoom" method="post" id="createRoomForm">
-            <input type="text" name="name" placeholder="Room Name">
-            <input type="text" name="desc" placeholder="Description">
-            <input type="submit" value="Create Room">
-        </form>
+        <details class="createRoomDetails">
+            <summary>Create Room</summary>
+
+            <form action="createRoom" method="post" id="createRoomForm">
+                <input type="text" name="name" placeholder="Room Name">
+                <input type="text" name="desc" placeholder="Description">
+                <input type="submit" value="Create Room">
+            </form>
+        </details>
 
         <div class="filters">
             <button id="oldFilter" class="filterButton">Old</button>    
@@ -358,16 +408,23 @@ app.get("/room/:id", async (req,res) => {
 
     posts.forEach(element => {
         const user = users.find(c => (c.id == element.author))
-        element.author = {id: user.id, username: user.username}
+        if(element.author) element.author = {id: user.id, username: user.username}
     });
+    //Escape Post
+    Promise.all(
+        posts.map(async c => (c = await escapePost(c)))
+    )
+
+    let admin = false
+    if(req.session.admin) admin = true
 
     html = await render(req, room.name,"/roomChat.js", `   
         
-        <script>let chatList = ${JSON.stringify(posts)}</script>
-        <script>const clientUserId = ${clientUserId}</script>
+        <script>let chatList = ${JSON.stringify(posts)}; const clientUserId = ${clientUserId}; const admin = ${admin}</script>
 
-        <form action="" id="form">
+        <form action="" id="form" class="sendMessageForm">
             <input name="msg" type="text" placeholder="Type Message">
+            <input type="submit" value="Send Message">
         </form>
 
         <div id="chat"></div>
@@ -489,6 +546,9 @@ app.post("/processLogin", async (req,res) => {
     req.session.userId = user.id
     req.session.username = user.username
 
+    if(user.admin) req.session.admin = true
+
+
     res.redirect("/?success=Login Successful")
 })
 
@@ -499,6 +559,7 @@ app.get("/processLogout", async (req,res) => {
     req.session.email = null
     req.session.userId = null
     req.session.username = null
+    req.session.admin = null
     res.redirect("/?success=Logout Successful")
 })
 

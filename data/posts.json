@@ -1,5 +1,264 @@
 [
    {
+      "id": 1770772582074,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770772582074,
+      "content": "<i class=\"material-icons\">add</i> 2123 2 1",
+      "edited": true
+   },
+   {
+      "id": 1770772578990,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770772578990,
+      "content": "Test This was edited by admin Edit test again d wa",
+      "edited": true
+   },
+   {
+      "id": 1770772575360,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770772575360,
+      "content": "<i class=\"material-icons\">add</i> Edit hihi Igen? S Edit",
+      "edited": true
+   },
+   {
+      "id": 1770772067686,
+      "roomId": "1769367787753",
+      "author": 1770772053051,
+      "timeSince": 1770772067686,
+      "content": "Test"
+   },
+   {
+      "id": 1770772026098,
+      "roomId": "1769367787753",
+      "author": 1769474212978,
+      "timeSince": 1770772026098,
+      "content": "Test"
+   },
+   {
+      "id": 1770772007142,
+      "roomId": "1769367787753",
+      "author": null,
+      "timeSince": 1770772007142,
+      "content": null
+   },
+   {
+      "id": 1770770056932,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770770056932,
+      "content": "Hallå där detta är ett test Edit Hej",
+      "edited": true
+   },
+   {
+      "id": 1770764845437,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770764845437,
+      "content": "deleted :( Lägger en edit också nu",
+      "edited": true
+   },
+   {
+      "id": 1770764828531,
+      "roomId": "1769367787753",
+      "author": null,
+      "timeSince": 1770764828531,
+      "content": null
+   },
+   {
+      "id": 1770764826589,
+      "roomId": "1769367787753",
+      "author": 1769267289760,
+      "timeSince": 1770764826589,
+      "content": "Nej det är"
+   },
+   {
+      "id": 1770764821216,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770764821216,
+      "content": "OBIWAN KENOBI!?"
+   },
+   {
+      "id": 1770764800024,
+      "roomId": "1769367787753",
+      "author": 1769267289760,
+      "timeSince": 1770764800024,
+      "content": "Hello there"
+   },
+   {
+      "id": 1770764714460,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770764714460,
+      "content": "This is another test"
+   },
+   {
+      "id": 1770764709276,
+      "roomId": "1769367787753",
+      "author": null,
+      "timeSince": 1770764709276,
+      "content": null,
+      "edited": true
+   },
+   {
+      "id": 1770762841047,
+      "roomId": "1769367787753",
+      "author": null,
+      "timeSince": 1770762841047,
+      "content": null
+   },
+   {
+      "id": 1770760315707,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770760315707,
+      "content": "The comment before is deleted? Edit yes it is",
+      "edited": true
+   },
+   {
+      "id": 1770759296008,
+      "roomId": "1769367787753",
+      "author": null,
+      "timeSince": 1770759296008,
+      "content": null
+   },
+   {
+      "id": 1770725330021,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770725330021,
+      "content": "<i class=\"material-icons\">add</i>232",
+      "edited": true
+   },
+   {
+      "id": 1770724911762,
+      "roomId": "1770724746695",
+      "author": 1769015182417,
+      "timeSince": 1770724911762,
+      "content": "Testdwadwd",
+      "edited": true
+   },
+   {
+      "id": 1770724878103,
+      "roomId": "1770724746695",
+      "author": 1769015182417,
+      "timeSince": 1770724878103,
+      "content": "&amp;lt;div&amp;gt;&amp;lt;/div&amp;gt;",
+      "edited": true
+   },
+   {
+      "id": 1770724842036,
+      "roomId": "1770724746695",
+      "author": 1769015182417,
+      "timeSince": 1770724842036,
+      "content": "<div></div>",
+      "edited": true
+   },
+   {
+      "id": 1770724784865,
+      "roomId": "1770724746695",
+      "author": 1769015182417,
+      "timeSince": 1770724784865,
+      "content": "<div></div>",
+      "edited": true
+   },
+   {
+      "id": 1770720680203,
+      "roomId": "1770720651656",
+      "author": 1769015182417,
+      "timeSince": 1770720680203,
+      "content": "Hello",
+      "edited": true
+   },
+   {
+      "id": 1770720402652,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770720402652,
+      "content": "Hej",
+      "edited": true
+   },
+   {
+      "id": 1770720318339,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770720318339,
+      "content": "Hello",
+      "edited": true
+   },
+   {
+      "id": 1770720277464,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770720277464,
+      "content": "<h1>Test</h1>",
+      "edited": true
+   },
+   {
+      "id": 1770720156388,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770720156388,
+      "content": "<h1>Test</h1>",
+      "edited": true
+   },
+   {
+      "id": 1770712353022,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770712353022,
+      "content": "<h1>Test</h1>"
+   },
+   {
+      "id": 1770712315526,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770712315526,
+      "content": "<h1>Test</h1>"
+   },
+   {
+      "id": 1770712160815,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770712160815,
+      "content": "<h1>Test</h1>",
+      "edited": true
+   },
+   {
+      "id": 1770712108183,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770712108183,
+      "content": "<h1>Test</h1>"
+   },
+   {
+      "id": 1770711622747,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770711622747,
+      "content": "Yesd",
+      "edited": true
+   },
+   {
+      "id": 1770711611965,
+      "roomId": "1769368024657",
+      "author": 1769015182417,
+      "timeSince": 1770711611965,
+      "content": "UpdateTest Edit Testd",
+      "edited": true
+   },
+   {
+      "id": 1770710631892,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1770710631892,
+      "content": "Test Edit Funkar Fortfarande",
+      "edited": true
+   },
+   {
       "id": 1770688837445,
       "roomId": "1769367857494",
       "author": 1769267289760,
@@ -95,7 +354,8 @@
       "roomId": "1769367787753",
       "author": 1769015182417,
       "timeSince": 1770665026342,
-      "content": "dwdawdawd"
+      "content": "dwdawdawdTest Edit",
+      "edited": true
    },
    {
       "id": 1770664948152,
@@ -215,7 +475,8 @@
       "roomId": "1769367787753",
       "author": 1769015182417,
       "timeSince": 1770643008293,
-      "content": "test"
+      "content": "testwdawdawd",
+      "edited": true
    },
    {
       "id": 1770642963095,

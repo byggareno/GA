@@ -58,5 +58,12 @@
       "email": "mrpefr@gmail.com",
       "username": "mrPefr",
       "password": "$2b$08$yuUNGXFnjGIFs0sYRUMcDeB2XGVKC74tPNos96dtajxbtjyZRgDpC"
+   },
+   {
+      "id": 1770772053051,
+      "email": "simonstrand22@gmail.com",
+      "username": "AdminAccount",
+      "password": "$2b$08$d706FZyVj2PfA3Y8UdgmlukxEvf6Hq4btRLYojq40sOoB0E4a.G7m",
+      "admin": true
    }
 ]

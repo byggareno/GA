@@ -7,6 +7,7 @@
 reloadEverything()
 setInterval(updateTimeSince, 1000)
 
+//Get time since date object was created
 function timeSinceTime(time){
     if(!time) return "No posts"
     let timeT = Math.floor((Date.now() - time)/1000)
@@ -51,10 +52,38 @@ function timeSinceTime(time){
     return newTimeT
 }
 
+//Generate an innerDiv (chat/post)
 function generateInnerDiv(post){
+    console.log(post)
 
-    let editButtonText = ""
-    if(clientUserId == post.author.id) editButtonText = "<input type='checkbox' class='editCheck'>"
+    if(!post.author || !post.content){
+        let innerDiv = document.createElement("div")
+        innerDiv.classList.add("innerDiv")
+        innerDiv.classList.add("deletedDiv")
+        innerDiv.id = post.id
+        innerDiv.innerHTML = `
+                            <div class="innerHeader">
+                                <div class="profilePicture">
+
+                                </div>
+                                <h3>
+                                    Unkown
+                                </h3>
+                                <div class = "positionBottom">
+                                    <p id="${post.timeSince}" class = "timeSinceText">
+                                        ${timeSinceTime(post.timeSince)}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="innerMain">
+                                <p>
+                                    Deleted
+                                </p> 
+                            </div>`
+        return innerDiv
+    }
+
+
     let edited = ""
     if(post.edited) edited = "(edited)"
     let innerDiv = document.createElement("div")
@@ -69,12 +98,11 @@ function generateInnerDiv(post){
                                 ${post.author.username}
                             </h3>
                             <div class = "positionBottom">
-                                <p class = "timeSinceText">
+                                <p id="${post.timeSince}" class = "timeSinceText">
                                     ${timeSinceTime(post.timeSince)}
                                 </p>
                             </div>
                             <div class = "positionRight">
-                            ${editButtonText}
                                 <p>
                                     ${edited}
                                 </p>
@@ -85,7 +113,10 @@ function generateInnerDiv(post){
                                 ${post.content}
                             </p>
                             <form action="" class="hidden editForm">
-                                <input type="submit">
+                                <input type="submit" value="Update">
+                            </form>
+                            <form action="" class="hidden deleteForm">
+                                <input type="submit" value="Delete">
                             </form>
                         </div>`
                         
@@ -93,11 +124,30 @@ function generateInnerDiv(post){
     //för jag glömde helt att post.content också borde fungera lol
 
     //If post was made by client account, add Edit button
-    if(clientUserId == post.author.id){
+    if(clientUserId == post.author.id || admin){
+
+        //Adding edit/delete checkmarks
+        const positionRight = innerDiv.querySelector(".positionRight")
+        const editDiv = document.createElement("div")
+        editDiv.classList.add("editStyle")
+        editDiv.innerHTML = `                                   
+            <i class="iconSmall material-icons">edit</i>
+            <input type='checkbox' class='editCheck'>
+        `
+        const deleteDiv = document.createElement("div")
+        deleteDiv.classList.add("deleteStyle")
+        deleteDiv.innerHTML = `                                   
+            <i class="iconSmall material-icons">delete</i>
+            <input type='checkbox' class='deleteCheck'>
+        `
+        positionRight.appendChild(editDiv)
+        positionRight.appendChild(deleteDiv)
+
+        //Handle Edit
+        //Edit checkmark
         const editButton = innerDiv.querySelector(".editCheck")
         const mainText = innerDiv.querySelector(".contentP")
         const editForm = innerDiv.querySelector(".editForm")
-
         editButton.addEventListener("change", (ev) => {
             if(editButton.checked) {
                 mainText.contentEditable = true                
@@ -107,11 +157,11 @@ function generateInnerDiv(post){
                 else {
                 mainText.contentEditable = false
                 editForm.classList.add("hidden")
-                mainText.textContent = post.content
+                mainText.innerHTML = post.content
                 console.log("Stopped editing " + innerDiv.id)
             }
         })
-
+        //Edit Confirm Button
         editForm.addEventListener("submit", (ev) => {
             //Lets the client handle the form instead of redirecting to a new link
             ev.preventDefault();
@@ -122,6 +172,30 @@ function generateInnerDiv(post){
             if(newText && newText.trim() != originalText.trim()) socket.emit("updateChat", {text: newText, id: postId});
             console.log("Updated div " + innerDiv.id + " with the new text : " + newText)
         });
+
+        //Handle Delete
+        //Delete checkmark
+        const deleteButton = innerDiv.querySelector(".deleteCheck")
+        const deleteForm = innerDiv.querySelector(".deleteForm")
+        deleteButton.addEventListener("change", (ev) => {
+            if(deleteButton.checked) {
+                deleteForm.classList.remove("hidden")
+            }
+                else {
+                deleteForm.classList.add("hidden")
+            }
+        })
+        //Delete Confirm Button
+        deleteForm.addEventListener("submit", (ev) => {
+            //Lets the client handle the form instead of redirecting to a new link
+            ev.preventDefault();
+            const postId = innerDiv.id
+            //If new text is not empty nor the same as the original text, send to server for update processing
+            socket.emit("deleteChat", postId);
+            console.log("Deleted div " + innerDiv.id)
+        });
+
+
     }
 
     return innerDiv
@@ -142,15 +216,19 @@ function addToBot(Object){
     outerDiv.appendChild(Object)
 }
 
+//Runs through every innerDiv and updates their TimeSince while not changing anything else
+//There is a setIntervall at the top where you can adjust the time between each update if you want.
 function updateTimeSince(){
     let childList = outerDiv.childNodes
     childList.forEach(element => {
-        element.querySelector(".timeSinceText").textContent = timeSinceTime(element.id)
+        const timeSinceP = element.querySelector(".timeSinceText")
+        timeSinceP.textContent = timeSinceTime(timeSinceP.id)
     });
 }
 
+//--------- Basic functions done
 
-//Basic Websockets
+//Websockets
 
 //Connect to websocket
 const socket = io();
@@ -163,7 +241,7 @@ const socket = io();
 const form = document.querySelector("#form")
 form.addEventListener("submit", (ev) => {
     ev.preventDefault();
-    console.log(ev)
+    //console.log(ev)
     const msg = (ev.target.msg.value).trim();
     if(msg) sendMessage(msg)
     ev.target.msg.value = ""
@@ -194,20 +272,6 @@ function loadMoreChats(){
     socket.emit("loadMoreChats", ChildCount);
 }
 
-socket.on("moreChats", (posts) => {
-    console.log(posts)
-    posts.forEach(element => {
-        addToBot(generateInnerDiv(element))
-        chatList.push(element)
-    });
-    if(posts.length < 10){
-        reachedBottom = true
-        document.querySelector("#bottomInfo").textContent = "Nothing more to load"
-    }
-
-})
-
-
 //Load more activations
 window.addEventListener("scroll", (ev) => {
     if (window.innerHeight + window.scrollY >= document.body.scrollHeight-50){
@@ -217,17 +281,22 @@ window.addEventListener("scroll", (ev) => {
 button = document.querySelector("#LoadButton")
 button.addEventListener("click", loadMoreChats)
 
+//Load more received handeling
+socket.on("moreChats", (posts) => {
+    //console.log(posts)
+    posts.forEach(element => {
+        addToBot(generateInnerDiv(element))
+        chatList.push(element)
+    });
+    if(posts.length < 10){
+        reachedBottom = true
+        document.querySelector("#bottomInfo").textContent = "Nothing more to load"
+    }
+})
 
-
-//Handle Edit
-
-
+//Handle Edit and Delete
 socket.on("chatUpdated", (post) => {
-    console.log(post)
-
     document.getElementById(post.id).replaceWith(generateInnerDiv(post))
-    
+    //console.log(post)
     //outerDiv.querySelector("#" + post.id) = generateInnerDiv(post)
-
-
 })
