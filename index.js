@@ -47,7 +47,6 @@ function handleConnection(socket){
     socket.on("newRoomCreated", handleCreateRoom)
     socket.on("disconnect", handleDisconnect)
     socket.on("loadMoreChats", handleLoadMoreChats)
-    socket.on("loadMoreRooms", handleLoadMoreRooms)
     socket.on("updateChat", handleUpdateChat)
     socket.on("deleteChat", handleDeleteChat)
 }
@@ -61,7 +60,7 @@ async function handleCreateRoom(room){
     if(!tSession.loggedIn) console.log(("error", "must be logged in")) 
     if(!tSession.loggedIn) return this.emit("error", "must be logged in")
     
-
+    room.owner = tSession.userId
     console.log(room)
     let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
     rooms.push(room)
@@ -109,29 +108,6 @@ async function handleDisconnect(event){
     console.log((this.request.session.username || "Unkown") + " disconnected");
 }
 
-//Handle loading more rooms
-async function handleLoadMoreRooms(event){
-    //console.log(this.request.session.username + " Wants chats from " + event)
-    let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
-    
-    const posts = JSON.parse(await fs.readFile("data/posts.json"))
-
-    //Updaterar rummens posts och timeSince så den visas rätt. Updateras inte live dock
-    rooms = await Promise.all(rooms.map(async r => {
-        revPosts = posts.filter(p => (p.id == r.id))
-        r.posts = revPosts.length
-        if(r.posts) r.timeSince = await timeSinceTime(revPosts[0].timeStamp) + " since last post"
-        else r.timeSince = "No posts"
-        r.name = escape(r.name)
-        r.desc = escape(r.desc)
-        return r
-    }))
-    
-    rooms = rooms.slice(event, event+10)
-
-    this.emit("moreRooms", rooms)
-}
-
 //Handle loading more chats
 async function handleLoadMoreChats(event){
     //console.log(this.request.session.username + " Wants chats from " + event)
@@ -145,8 +121,8 @@ async function handleLoadMoreChats(event){
     posts = posts.slice(event, event+10)
     const users = JSON.parse(await fs.readFile("data/users.json"))
     posts = await Promise.all(posts.map(async c => {
-        c = await escapePost(c)
         c.author = users.find(u => (u.id == c.author))
+        c = await escapePost(c)
         if(!c.author) return c
         delete c.author.password
         delete c.author.email
@@ -323,15 +299,21 @@ app.get("/roomList", async (req,res) => {
 
     let errorText = req.query.error || "";
     let successText = req.query.success || "";
+    let loggedInHide = ""
+    if(!req.session.loggedIn) loggedInHide = "hidden"
+
+    let admin = false
+    if(req.session.admin) admin = true
+    const clientUserId = req.session.userId || 0
 
     html = await render(req, "Rooms List","roomList.js",`
 
-        <script>let roomList = ${JSON.stringify(extendedRooms)}</script>
+        <script>let roomList = ${JSON.stringify(extendedRooms)}; const clientUserId = ${clientUserId}; const admin = ${admin}</script>
         
         <p class="error">${escape(errorText)}</p>
         <p class="success">${escape(successText)}</p>
 
-        <details class="createRoomDetails">
+        <details class="createRoomDetails ${loggedInHide}">
             <summary>Create Room</summary>
 
             <form action="createRoom" method="post" id="createRoomForm">
@@ -341,53 +323,32 @@ app.get("/roomList", async (req,res) => {
             </form>
         </details>
 
-        <div class="filters">
-            <button id="oldFilter" class="filterButton">Old</button>    
-            <button id="newFilter" class="filterButton">New</button>
-            <button id="updatedFilter" class="filterButton">Updated</button>
-            <button id="postsFilter" class="filterButton">Posts</button>
+
+        <div class="outerFilters">
+            <h3>Sorting Order</h3>
+
+            <div class="filters">
+                <button id="oldFilter" class="filterButton usingFilter">Old</button>    
+                <button id="newFilter" class="filterButton">New</button>
+                <button id="updatedFilter" class="filterButton">Updated</button>
+                <button id="postsFilter" class="filterButton">Posts</button>
+            </div>
         </div>
 
         <form action="" id="searchForm">
-            <input type="text" placeholder="Search" name="search">
+            <input type="text" placeholder="Search room" name="search">
         </form>
         
         <div class="outerDiv">
         </div>
 
     <div class="bottomDiv">
-        <h3 id="bottomInfo">Your website is stuck</h3>
-        <button id="LoadButton"> Click to force loading more </button>
+        <h3 id="bottomInfo">You have reached the bottom</h3>
     </div>
     <br>
         `)
 
     res.send(html)
-
-})
-
-//Create Room
-app.post("/createRoom", async (req,res) => {
-
-    //just defining a bunch of variables and returning if form not filled out properly or not logged in
-    if(!req.session.loggedIn) return res.redirect("/roomList?error=Must be logged in to create room")
-    
-    let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
-    
-    const name = req.body.name
-    if(!name) return res.redirect("/roomList?error=Room must have a name")
-    const desc = req.body.desc
-    if(!desc) return res.redirect("/roomList?error=Room must have a description")
-    const timeSince = 0
-    const posts = 0
-    const id = Date.now()
-    room = {name: name, desc: desc, timeSince: timeSince, posts: posts, id: id}
-
-    rooms.push(room)
-
-    await fs.writeFile("data/rooms.json",JSON.stringify(rooms, null, 3))
-
-    res.redirect("/roomList?success=Room was created")
 
 })
 
@@ -398,7 +359,7 @@ app.get("/room/:id", async (req,res) => {
     //if(!req.session.loggedIn) return res.redirect("/?error=Must be logged in to chat")
 
     const rooms = JSON.parse(await fs.readFile("data/rooms.json"))
-    const room = rooms.find(c => ( c.id = req.params.id))
+    const room = rooms.find(c => ( c.id == req.params.id))
     const clientUserId = req.session.userId || 0
 
     let posts = JSON.parse(await fs.readFile("data/posts.json"))
@@ -418,14 +379,22 @@ app.get("/room/:id", async (req,res) => {
     let admin = false
     if(req.session.admin) admin = true
 
-    html = await render(req, room.name,"/roomChat.js", `   
+    let loggedInHide = ""
+    let NotloggedInHide = ""
+    if(!req.session.loggedIn) loggedInHide = "hidden"
+    else NotloggedInHide = "hidden"
+
+    html = await render(req, escape(room.name),"/roomChat.js", `   
         
         <script>let chatList = ${JSON.stringify(posts)}; const clientUserId = ${clientUserId}; const admin = ${admin}</script>
 
-        <form action="" id="form" class="sendMessageForm">
+        <form action="" id="form" class="sendMessageForm ${loggedInHide}">
             <input name="msg" type="text" placeholder="Type Message">
             <input type="submit" value="Send Message">
         </form>
+
+        <h3 class="${NotloggedInHide}">Log in to send message</h3>
+
 
         <div id="chat"></div>
         
@@ -451,11 +420,14 @@ app.get("/", async (req, res) => {
     const successText = req.query.success || "";
     let name = "Please log in to use website"
     if(req.session.username) name = "Welcome " + req.session.username
+    let desc = ""
+    if(req.session.loggedIn) desc = "Press chat to browse chatrooms"
 
     html = await render(req, "Home","", `
         <p class="error">%VarError%</p>
         <p class="success">%VarSuccess%</p>
         <h3> ${escape(name)}</h3>
+        <h4> ${desc}</h4>
         `.replace("%VarError%",errorText).replace("%VarSuccess%",escape(successText)))
     res.send(html);
 });
@@ -467,7 +439,7 @@ app.get("/register", async (req, res) => {
     let errorText = req.query.error || "";
 
     //Render html
-    html = await render(req, "Home","", ` 
+    html = await render(req, "Register","", ` 
     <p class="error">%VarError%</p>
     <form action="/processRegister" method="post">
         <input type="text" name="name" placeholder="Username">
@@ -513,7 +485,7 @@ app.get("/login", async (req, res) => {
     let successText = req.query.success || "";
 
     //Render html
-    html = await render(req, "Home","", ` 
+    html = await render(req, "Login","", ` 
     <p class="error">%VarError%</p>
     <p class="success">%VarSuccess%</p>
     <form action="/processLogin" method="post">
@@ -536,7 +508,7 @@ app.post("/processLogin", async (req,res) => {
     let users = JSON.parse(await fs.readFile("data/users.json"))
     //Find user and return error if user not found
     const user = (users.find(c => c.email == email))
-    if(!user) res.redirect("/login?error=No user with that email exists")
+    if(!user) return res.redirect("/login?error=No user with that email exists")
     //Password Check
     if(!(await bcrypt.compare(password, user.password))) return res.redirect("/login?error=Wrong password")
 
@@ -591,4 +563,16 @@ app.get("/processLogout", async (req,res) => {
     await fs.writeFile("data/temp.json", JSON.stringify(newPosts, null, 3))
     res.redirect("/")
     
+}) */
+
+/* app.get("/QuickFix3", async (req,res) => {
+    let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
+    const newRooms = await Promise.all(rooms.map(async c => {
+        c.owner = "1769015182417"
+        return c
+
+    }))
+
+    await fs.writeFile("data/temp.json", JSON.stringify(newRooms, null, 3))
+    res.redirect("/")
 }) */

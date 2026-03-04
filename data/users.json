@@ -65,5 +65,11 @@
       "username": "AdminAccount",
       "password": "$2b$08$d706FZyVj2PfA3Y8UdgmlukxEvf6Hq4btRLYojq40sOoB0E4a.G7m",
       "admin": true
+   },
+   {
+      "id": 1770809169771,
+      "email": "simonstrand20@gmail.com",
+      "username": "Test20",
+      "password": "$2b$08$60yAZdZRR8WcAV/dIhELweLttxhqomDOGTCvA1n5OoC7oAdlqyYnG"
    }
 ]

@@ -717,3 +717,54 @@ app.get("/roomList", async (req,res) => {
     res.send(html)
 
 })
+
+
+//Handle loading more rooms
+async function handleLoadMoreRooms(event){
+    //console.log(this.request.session.username + " Wants chats from " + event)
+    let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
+    
+    const posts = JSON.parse(await fs.readFile("data/posts.json"))
+
+    //Updaterar rummens posts och timeSince så den visas rätt. Updateras inte live dock
+    rooms = await Promise.all(rooms.map(async r => {
+        revPosts = posts.filter(p => (p.id == r.id))
+        r.posts = revPosts.length
+        if(r.posts) r.timeSince = await timeSinceTime(revPosts[0].timeStamp) + " since last post"
+        else r.timeSince = "No posts"
+        r.name = escape(r.name)
+        r.desc = escape(r.desc)
+        return r
+    }))
+    
+    rooms = rooms.slice(event, event+10)
+
+    this.emit("moreRooms", rooms)
+}
+
+
+//Create Room
+app.post("/createRoom", async (req,res) => {
+
+    //just defining a bunch of variables and returning if form not filled out properly or not logged in
+    if(!req.session.loggedIn) return res.redirect("/roomList?error=Must be logged in to create room")
+    
+    let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
+    
+    const name = req.body.name
+    if(!name) return res.redirect("/roomList?error=Room must have a name")
+    const desc = req.body.desc
+    if(!desc) return res.redirect("/roomList?error=Room must have a description")
+    const timeSince = 0
+    const posts = 0
+    const id = Date.now()
+    const owner = req.session.userId
+    room = {name: name, desc: desc, timeSince: timeSince, posts: posts, id: id, owner: owner}
+
+    rooms.push(room)
+
+    await fs.writeFile("data/rooms.json",JSON.stringify(rooms, null, 3))
+
+    res.redirect("/roomList?success=Room was created")
+
+})

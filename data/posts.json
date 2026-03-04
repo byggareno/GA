@@ -1,5 +1,271 @@
 [
    {
+      "id": 1772556283366,
+      "roomId": "1772556196691",
+      "author": 1769267289760,
+      "timeSince": 1772556283366,
+      "content": "<h1>awhdoiawd</h1>"
+   },
+   {
+      "id": 1772556255366,
+      "roomId": "1772556196691",
+      "author": 1769015182417,
+      "timeSince": 1772556255366,
+      "content": "Ush #############",
+      "edited": true
+   },
+   {
+      "id": 1772556248516,
+      "roomId": "1772556196691",
+      "author": 1769015182417,
+      "timeSince": 1772556248516,
+      "content": "Jajamensan"
+   },
+   {
+      "id": 1772556245147,
+      "roomId": "1772556196691",
+      "author": 1769267289760,
+      "timeSince": 1772556245147,
+      "content": "Obivan Kenudy?"
+   },
+   {
+      "id": 1772556213383,
+      "roomId": "1772556196691",
+      "author": 1769015182417,
+      "timeSince": 1772556213383,
+      "content": "Hello There"
+   },
+   {
+      "id": 1772536130160,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772536130160,
+      "content": "Hallå test"
+   },
+   {
+      "id": 1772534507220,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534507220,
+      "content": "0"
+   },
+   {
+      "id": 1772534506773,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534506773,
+      "content": "9"
+   },
+   {
+      "id": 1772534506341,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534506341,
+      "content": "8"
+   },
+   {
+      "id": 1772534505917,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534505917,
+      "content": "7"
+   },
+   {
+      "id": 1772534505429,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534505429,
+      "content": "6"
+   },
+   {
+      "id": 1772534505029,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534505029,
+      "content": "5"
+   },
+   {
+      "id": 1772534501988,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534501988,
+      "content": "4"
+   },
+   {
+      "id": 1772534501637,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534501637,
+      "content": "3"
+   },
+   {
+      "id": 1772534500805,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534500805,
+      "content": "2"
+   },
+   {
+      "id": 1772534500444,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534500444,
+      "content": "1"
+   },
+   {
+      "id": 1772534496845,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1772534496845,
+      "content": "<h1>Test</h1>"
+   },
+   {
+      "id": 1771921926318,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1771921926318,
+      "content": "Hej på dig"
+   },
+   {
+      "id": 1771921916572,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1771921916572,
+      "content": "Skriv Hej på dig om du är dum",
+      "edited": true
+   },
+   {
+      "id": 1771874902139,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1771874902139,
+      "content": "Ush Edge"
+   },
+   {
+      "id": 1771874895236,
+      "roomId": "1769367787753",
+      "author": 1769267289760,
+      "timeSince": 1771874895236,
+      "content": "Hejsan"
+   },
+   {
+      "id": 1771874859252,
+      "roomId": "1769367787753",
+      "author": null,
+      "timeSince": 1771874859252,
+      "content": null,
+      "edited": true
+   },
+   {
+      "id": 1771641149414,
+      "roomId": "1771641123428",
+      "author": null,
+      "timeSince": 1771641149414,
+      "content": null
+   },
+   {
+      "id": 1771641138919,
+      "roomId": "1771641123428",
+      "author": 1769015182417,
+      "timeSince": 1771641138919,
+      "content": "Facts"
+   },
+   {
+      "id": 1771641129813,
+      "roomId": "1771641123428",
+      "author": 1769015182417,
+      "timeSince": 1771641129813,
+      "content": "AxelÄrSämst"
+   },
+   {
+      "id": 1771601873641,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1771601873641,
+      "content": "Message"
+   },
+   {
+      "id": 1771523582045,
+      "roomId": "1770720651656",
+      "author": 1769015182417,
+      "timeSince": 1771523582045,
+      "content": "dwadwdadw"
+   },
+   {
+      "id": 1771430520092,
+      "roomId": "1769367787753",
+      "author": 1769015182417,
+      "timeSince": 1771430520092,
+      "content": "Test",
+      "edited": true
+   },
+   {
+      "id": 1771209501274,
+      "roomId": "1771209438089",
+      "author": 1769267289760,
+      "timeSince": 1771209501274,
+      "content": ":(("
+   },
+   {
+      "id": 1771209497420,
+      "roomId": "1771209438089",
+      "author": 1769015182417,
+      "timeSince": 1771209497420,
+      "content": "Dubbelhakade \"#!¤!# Edit tog bort fult ord",
+      "edited": true
+   },
+   {
+      "id": 1771209493034,
+      "roomId": "1771209438089",
+      "author": 1769267289760,
+      "timeSince": 1771209493034,
+      "content": ":((()()"
+   },
+   {
+      "id": 1771209487378,
+      "roomId": "1771209438089",
+      "author": 1769015182417,
+      "timeSince": 1771209487378,
+      "content": "Använder Edge XD"
+   },
+   {
+      "id": 1771209478841,
+      "roomId": "1771209438089",
+      "author": 1769015182417,
+      "timeSince": 1771209478841,
+      "content": "Du är ful"
+   },
+   {
+      "id": 1771209475678,
+      "roomId": "1771209438089",
+      "author": 1769267289760,
+      "timeSince": 1771209475678,
+      "content": "Hej på dig"
+   },
+   {
+      "id": 1771209471875,
+      "roomId": "1771209438089",
+      "author": 1769015182417,
+      "timeSince": 1771209471875,
+      "content": "Hallå där"
+   },
+   {
+      "id": 1770810093926,
+      "roomId": "1769367787753",
+      "author": null,
+      "timeSince": 1770810093926,
+      "content": null,
+      "edited": true
+   },
+   {
+      "id": 1770807912391,
+      "roomId": "1769367857494",
+      "author": null,
+      "timeSince": 1770807912391,
+      "content": null,
+      "edited": true
+   },
+   {
       "id": 1770772582074,
       "roomId": "1769367787753",
       "author": 1769015182417,
@@ -20,7 +286,7 @@
       "roomId": "1769367787753",
       "author": 1769015182417,
       "timeSince": 1770772575360,
-      "content": "<i class=\"material-icons\">add</i> Edit hihi Igen? S Edit",
+      "content": "<i class=\"material-icons\">add</i> Edit hihi Igen? S Edit tetet",
       "edited": true
    },
    {
@@ -146,15 +412,15 @@
       "roomId": "1770724746695",
       "author": 1769015182417,
       "timeSince": 1770724878103,
-      "content": "&amp;lt;div&amp;gt;&amp;lt;/div&amp;gt;",
+      "content": "&amp;lt;div&amp;Test",
       "edited": true
    },
    {
       "id": 1770724842036,
       "roomId": "1770724746695",
-      "author": 1769015182417,
+      "author": null,
       "timeSince": 1770724842036,
-      "content": "<div></div>",
+      "content": null,
       "edited": true
    },
    {
@@ -1021,8 +1287,9 @@
       "roomId": "1769367850632",
       "author": 1769015182417,
       "id": 1769432101757,
-      "content": "Funkar nog",
-      "timeSince": 1769432101757
+      "content": "Funkar nog Edit?",
+      "timeSince": 1769432101757,
+      "edited": true
    },
    {
       "roomId": "1769367850632",

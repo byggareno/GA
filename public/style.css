@@ -4,6 +4,19 @@
     margin: 0;
 }
 
+
+* {
+  font-family: "";
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+
+body{
+    background-color: rgb(255, 255, 255);
+}
+
 .linkDiv{
     grid-template-columns: 1fr 1fr 4fr 1fr 1fr;
     display: grid;
@@ -11,14 +24,31 @@
     text-align: center;
     padding: 2%;
     padding-bottom: 0 ;
+    padding-top: 0;
+}
+
+header{
+    background-color: rgb(226, 226, 226);
+    margin-bottom: 2vh;
 }
 
 .linkDiv h1{
     font-size: 6vw;
+}
+
+.linkDiv a{
+    max-height: min-content;
+    bottom: -2vw;
     position: relative;
-    bottom: 2vw;
+    padding: 3%;
 
 }
+
+.linkDiv a:hover{
+    background-color: rgb(198, 202, 204);
+    border-radius: 2rem;
+}
+
 
 .error{
     text-align: center;
@@ -105,7 +135,7 @@ form{
 }
 
 .hidden{
-    display: none;
+    display: none !important;
 }
 
 
@@ -113,10 +143,23 @@ form{
     grid-template-columns: 1fr;
     display: grid;
     row-gap: 5px;
+    position:relative;
+    bottom: 4px;
 }
 
 .iconSmall{
     font-size: 1rem !important;
+    user-select: none;
+    cursor: pointer;
+    max-height: min-content;
+}
+
+.iconSmall:hover{
+    background-color: rgb(201, 201, 201);
+}
+
+.checked{
+    background-color: rgb(141, 141, 141) !important; 
 }
 
 .sendMessageForm{
@@ -126,6 +169,9 @@ form{
 
 .filters{
     padding: 1%;
+    display: flex;
+    gap: 0.7vw;
+    font-size: 2vw;
 }
 
 #filterTxt{
@@ -136,8 +182,41 @@ form{
 
 #createRoomForm{
     width: 40vw;
+    margin-bottom: 2vh;
+
 }
 
 .innerMain a{
     color: blue;
 }
+
+.innerMain a:hover{
+    background-color: rgb(91, 176, 255);
+    border-radius: 4px;
+}
+
+.outerFilters{
+    border: 1px solid black;
+    place-items: center;
+    font-size: 2vw;
+    padding: 1%;
+    margin-bottom: 1%;
+}
+
+.filters button{
+    font-size: 2vw;
+    border: 0.2vw solid black;
+    border-radius: 1vw;
+
+}
+
+.filters button:hover{
+    background-color: rgb(223, 227, 228);
+
+}
+
+.usingFilter{
+    background-color: rgb(190, 190, 190) !important;
+
+}
+

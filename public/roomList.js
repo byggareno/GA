@@ -49,7 +49,6 @@ function escapeHtml(string) {
 
 console.log("Running")
 
-
 function timeSinceTime(time){
     if(!time) return "No posts"
     let timeT = Math.floor((Date.now() - time)/1000)
@@ -96,7 +95,7 @@ function timeSinceTime(time){
 
 //Lite variabler som vanligt
 const outerDiv = document.querySelector(".outerDiv")
-let activeFilter = "Old"
+let activeFilter = "oldFilter"
 let searchFilter = ""
 let updateList = true
 
@@ -126,22 +125,22 @@ function reloadRooms(){
     sortedRoomList = tempList
 
     //Sorting order
-    if(activeFilter == "Old"){
+    if(activeFilter == "oldFilter"){
         sortedRoomList.sort(function(a, b){
             return a.id - b.id
         })
     }
-    if(activeFilter == "New"){
+    if(activeFilter == "newFilter"){
         sortedRoomList.sort(function(a, b){
             return b.id - a.id
         })
     }
-    else if(activeFilter == "Posts"){
+    else if(activeFilter == "postsFilter"){
         sortedRoomList.sort(function(a, b){
             return b.posts - a.posts
         })
     }
-    else if(activeFilter == "Updated"){
+    else if(activeFilter == "updatedFilter"){
         sortedRoomList.sort(function(a, b){
             return b.timeSince - a.timeSince
         })
@@ -170,15 +169,62 @@ function reloadRooms(){
                                     : ${el.posts + " posts"}
                                 </p>
                             </div>
+                            <div class = "positionRight">
+                            </div>
                         </div>
                         <div class="innerMain">
                             <p>
                                 ${el.desc}
                             </p>
                             <a href="room/${el.id}">Enter Room</a>
+                            <form action="" class="hidden deleteForm">
+                                <input type="submit" value="Delete">
+                            </form>
                         </div>`
 
         innerDiv.innerHTML = divContent;
+        const positionRight = innerDiv.querySelector(".positionRight")
+
+        //If post was made by client account, add Edit button
+        if(clientUserId == el.owner || admin){
+
+            //Adding edit/delete checkmarks
+            const deleteDiv = document.createElement("div")
+            deleteDiv.classList.add("deleteStyle")
+            deleteDiv.innerHTML = `                                   
+                <i class="iconSmall material-icons deleteCheck">delete</i>
+            `
+            positionRight.appendChild(deleteDiv)
+
+            //Handle Delete
+            //Delete checkmark
+            const deleteButton = innerDiv.querySelector(".deleteCheck")
+            const deleteForm = innerDiv.querySelector(".deleteForm")
+            deleteButton.addEventListener("click", (ev) => {
+                if(!deleteButton.classList.contains("checked")) {
+                    deleteForm.classList.remove("hidden")
+                    deleteButton.classList.add("checked")
+                }
+                    else {
+                    deleteForm.classList.add("hidden")
+                    deleteButton.classList.remove("checked")
+                }
+            })
+            //Delete Confirm Button
+            deleteForm.addEventListener("submit", (ev) => {
+                //Lets the client handle the form instead of redirecting to a new link
+                ev.preventDefault();
+                const postId = innerDiv.id
+                //If new text is not empty nor the same as the original text, send to server for update processing
+                socket.emit("deleteRoom", postId);
+                console.log("Deleted div " + innerDiv.id)
+            });
+
+
+    }
+
+
+
         outerDiv.appendChild(innerDiv, outerDiv.firstChild);
 
     });
@@ -195,7 +241,14 @@ function updateTimeSince(){
         timeSinceP.textContent = timeSinceTime(timeSinceP.id)
     });
 }
-setInterval(updateTimeSince, 1000)
+
+let intervalId = setInterval(updateTimeSince, 1000)
+
+function changeInterval(ms){
+clearInterval(intervalId)
+intervalId = setInterval(updateTimeSince, ms)
+}
+
 
 //Old search
 /* const searchForm = document.querySelector("#searchForm")
@@ -246,7 +299,28 @@ const newButton = document.querySelector("#newFilter")
 const updatedButton = document.querySelector("#updatedFilter")
 const postsButton = document.querySelector("#postsFilter")
 
-oldButton.addEventListener("click", (ev) =>{
+function changeFilter(event){
+    console.log(event.target.id)
+    activeFilter = event.target.id
+
+    oldButton.classList.remove("usingFilter")
+    newButton.classList.remove("usingFilter")
+    updatedButton.classList.remove("usingFilter")
+    postsButton.classList.remove("usingFilter")
+
+    event.target.classList.add("usingFilter")
+
+    reloadRooms()
+
+}
+
+oldButton.addEventListener("click", changeFilter)
+newButton.addEventListener("click", changeFilter)
+updatedButton.addEventListener("click", changeFilter)
+postsButton.addEventListener("click", changeFilter)
+
+
+/* oldButton.addEventListener("click", (ev) =>{
     activeFilter = "Old"
     reloadRooms()
 })
@@ -262,7 +336,7 @@ postsButton.addEventListener("click", (ev) =>{
     activeFilter = "Posts"
     reloadRooms()
 })
-
+ */
 
 //Create room code
 const createRoomForm = document.querySelector("#createRoomForm")
@@ -300,23 +374,3 @@ const successEl = document.querySelector(".success")
 function setSuccess(success){
     successEl.textContent = success
 }
-
-
-
-//Icke använda load more funktioner
-
-function loadMoreRooms(){
-    ChildCount = outerDiv.childElementCount
-    socket.emit("loadMoreRooms", ChildCount);
-}
-
-//Auto loada mer om scrollat till slutet
-window.addEventListener("scroll", (ev) => {
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight-50 && !reachedBottom){
-        loadMoreRooms()
-    }
-})
-
-//Knapp för att force loada mer object om det behövs
-button = document.querySelector("#LoadButton")
-button.addEventListener("click", loadMoreRooms)

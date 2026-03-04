@@ -5,7 +5,14 @@
 
 // Basic Functions
 reloadEverything()
-setInterval(updateTimeSince, 1000)
+
+let intervalId = setInterval(updateTimeSince, 1000)
+
+function changeInterval(ms){
+clearInterval(intervalId)
+intervalId = setInterval(updateTimeSince, ms)
+}
+
 
 //Get time since date object was created
 function timeSinceTime(time){
@@ -128,17 +135,16 @@ function generateInnerDiv(post){
 
         //Adding edit/delete checkmarks
         const positionRight = innerDiv.querySelector(".positionRight")
+        
         const editDiv = document.createElement("div")
         editDiv.classList.add("editStyle")
         editDiv.innerHTML = `                                   
-            <i class="iconSmall material-icons">edit</i>
-            <input type='checkbox' class='editCheck'>
+            <i class="iconSmall material-icons editCheck">edit</i>
         `
         const deleteDiv = document.createElement("div")
         deleteDiv.classList.add("deleteStyle")
         deleteDiv.innerHTML = `                                   
-            <i class="iconSmall material-icons">delete</i>
-            <input type='checkbox' class='deleteCheck'>
+            <i class="iconSmall material-icons deleteCheck">delete</i>
         `
         positionRight.appendChild(editDiv)
         positionRight.appendChild(deleteDiv)
@@ -148,16 +154,22 @@ function generateInnerDiv(post){
         const editButton = innerDiv.querySelector(".editCheck")
         const mainText = innerDiv.querySelector(".contentP")
         const editForm = innerDiv.querySelector(".editForm")
-        editButton.addEventListener("change", (ev) => {
-            if(editButton.checked) {
+        editButton.addEventListener("click", (ev) => {
+            if(!editButton.classList.contains("checked")) {
                 mainText.contentEditable = true                
                 editForm.classList.remove("hidden")
+                editButton.classList.add("checked")
                 console.log("Now editing " + innerDiv.id)
+                if(deleteButton.classList.contains("checked")) {
+                    deleteForm.classList.add("hidden")
+                    deleteButton.classList.remove("checked")
+                }
             }
                 else {
                 mainText.contentEditable = false
                 editForm.classList.add("hidden")
                 mainText.innerHTML = post.content
+                editButton.classList.remove("checked")
                 console.log("Stopped editing " + innerDiv.id)
             }
         })
@@ -177,12 +189,21 @@ function generateInnerDiv(post){
         //Delete checkmark
         const deleteButton = innerDiv.querySelector(".deleteCheck")
         const deleteForm = innerDiv.querySelector(".deleteForm")
-        deleteButton.addEventListener("change", (ev) => {
-            if(deleteButton.checked) {
+        deleteButton.addEventListener("click", (ev) => {
+            if(!deleteButton.classList.contains("checked")) {
                 deleteForm.classList.remove("hidden")
+                deleteButton.classList.add("checked")
+                if(editButton.classList.contains("checked")){
+                    mainText.contentEditable = false
+                    editForm.classList.add("hidden")
+                    mainText.innerHTML = post.content
+                    editButton.classList.remove("checked")
+                    console.log("Stopped editing " + innerDiv.id)
+                }
             }
                 else {
                 deleteForm.classList.add("hidden")
+                deleteButton.classList.remove("checked")
             }
         })
         //Delete Confirm Button
@@ -268,16 +289,30 @@ function handleChatClient(msg){
 //Load more handeling
 function loadMoreChats(){
     ChildCount = outerDiv.childElementCount
-    if(reachedBottom) return
+    if(reachedBottom) return false
     socket.emit("loadMoreChats", ChildCount);
+    return true
 }
 
-//Load more activations
+//Triggers for "loadMore"
+//If scrolling
 window.addEventListener("scroll", (ev) => {
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight-50){
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight-(window.innerHeight*0.4)){
         loadMoreChats()
     }
 })
+//If zooming using ctrl+scroll
+window.addEventListener("wheel", (ev) => {
+    if(!ev.ctrlKey) return
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight-(window.innerHeight*0.4)){
+        loadMoreChats()
+    }
+})
+//If bottom on page load
+if (window.innerHeight + window.scrollY >= document.body.scrollHeight-(window.innerHeight*0.4)){
+    loadMoreChats()
+}
+
 button = document.querySelector("#LoadButton")
 button.addEventListener("click", loadMoreChats)
 
@@ -291,9 +326,17 @@ socket.on("moreChats", (posts) => {
     if(posts.length < 10){
         reachedBottom = true
         document.querySelector("#bottomInfo").textContent = "Nothing more to load"
+        document.querySelector(".bottomDiv").removeChild(document.querySelector("#LoadButton"))
+
     }
+    loadMoreChatsCheck()
 })
 
+function loadMoreChatsCheck(){
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight-(window.innerHeight*0.4)){
+        loadMoreChats()
+    }
+}
 //Handle Edit and Delete
 socket.on("chatUpdated", (post) => {
     document.getElementById(post.id).replaceWith(generateInnerDiv(post))
