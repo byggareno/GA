@@ -3,7 +3,7 @@ require("dotenv").config()
 const fs = require("fs").promises
 const bcrypt = require("bcryptjs");
 const escape = require("escape-html");
-port = process.env.port || 3456
+const port = process.env.port || 3456
 sessionSecret = process.env.session_sec
 
 
@@ -39,10 +39,12 @@ function handleConnection(socket){
     //Joining the right room
     const baseLink = "http://" + socket.handshake.headers.host + "/"
     const param = (socket.handshake.headers.referer.slice(baseLink.length))
+    console.log(baseLink)
+    console.log(param)
     console.log("connected to " + (socket.request.session.username || "unkown") + " at " + param);
     socket.join(param)
 
-    //Fixing all socket.on's/connections/whateveryouwanttocallthem
+    //Fixing all socket.on's/connections
     socket.on("chat", handleChat);
     socket.on("newRoomCreated", handleCreateRoom)
     socket.on("disconnect", handleDisconnect)
