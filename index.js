@@ -64,6 +64,8 @@ async function handleCreateRoom(room){
     
     room.owner = tSession.userId
     console.log(room)
+    if(room.name.length > process.env.maxRoomNameLen) return this.emit("error", `Room name must be shorter than ${process.envmaxRoomNameLen} characters`)
+    if(room.desc.length > process.env.maxRoomDescLen) return this.emit("error", `Room description must be shorter than ${process.env.maxRoomDescLen} characters`)    
     let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
     rooms.push(room)
     await fs.writeFile("data/rooms.json", JSON.stringify(rooms, null, 3))
@@ -466,6 +468,9 @@ app.post("/processRegister", async (req,res) => {
     const id = Date.now()
 
     //Return error if account with email already
+    if(email.length > process.env.maxEmailLen) return res.redirect("/register?error=" + `Email can't be longer than ${process.env.maxEmailLen} characters`)
+    if(username.length > process.env.maxUsernameLen) return res.redirect("/register?error=" + `Username can't be longer than ${process.env.maxUsernameLen} characters`)
+    if(password.length > process.env.maxPasswordLen) return res.redirect("/register?error=" + `Password can't be longer than ${process.env.maxPasswordLen} characters`)
     if(users.find(c => c.email == email)) return res.redirect("/register?error=Account Already Exists")
 
     //Create new user and add user to file
