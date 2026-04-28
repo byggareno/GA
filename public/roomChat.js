@@ -349,9 +349,11 @@ socket.on("chatUpdated", (post) => {
 socket.on("error", setError)
 socket.on("success", setSuccess)
 
+const errorEl = document.querySelector(".error")
 function setError(error){
-    console.log(error)
+    errorEl.textContent = error
 }
+const successEl = document.querySelector(".success")
 function setSuccess(success){
-    console.log(success)
+    successEl.textContent = success
 }

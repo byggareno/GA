@@ -77,6 +77,7 @@ async function handleCreateRoom(room){
     //Create simpler post to send to clients in the same room
     console.log(`${this.request.session.username} created room : ${room.name}`)
     io.to("roomList").emit("roomToClient", room)
+    this.emit("success", "Room has been created")
 }
 
 //Recives chat
@@ -207,6 +208,7 @@ async function handleDeleteRoom(roomId){
     
     //Send update in posts to clients connected to relevant room
     io.to("roomList").emit("roomRemoved",roomId)
+    this.emit("success", "Room has been deleted")
 }
 
 //Render function
@@ -389,6 +391,9 @@ app.get("/room/:id", async (req,res) => {
     const room = rooms.find(c => ( c.id == req.params.id))
     const clientUserId = req.session.userId || 0
 
+    let errorText = req.query.error || "";
+    let successText = req.query.success || "";
+    
     let posts = JSON.parse(await fs.readFile("data/posts.json"))
     posts = posts.filter(c => (c.roomId == req.params.id))
     let users = JSON.parse(await fs.readFile("data/users.json"))
@@ -414,6 +419,9 @@ app.get("/room/:id", async (req,res) => {
     html = await render(req, escape(room.name),"/roomChat.js", `   
         
         <script>let chatList = ${JSON.stringify(posts)}; const clientUserId = ${clientUserId}; const admin = ${admin}</script>
+
+        <p class="error">${escape(errorText)}</p>
+        <p class="success">${escape(successText)}</p>
 
         <form action="" id="form" class="sendMessageForm ${loggedInHide}">
             <input name="msg" type="text" placeholder="Type Message">
