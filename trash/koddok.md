@@ -58,7 +58,9 @@ function handleConnection(socket){
 
     //Joining the right room
     const baseLink = "http://" + socket.handshake.headers.host + "/"
-    const param = (socket.handshake.headers.referer.slice(baseLink.length))
+    const param = (socket.handshake.headers.referer.slice(baseLink.length)).split("?")[0]
+    console.log(baseLink)
+    console.log(param)
     console.log("connected to " + (socket.request.session.username || "unkown") + " at " + param);
     socket.join(param)
 
@@ -69,6 +71,7 @@ function handleConnection(socket){
     socket.on("loadMoreChats", handleLoadMoreChats)
     socket.on("updateChat", handleUpdateChat)
     socket.on("deleteChat", handleDeleteChat)
+    socket.on("deleteRoom", handleDeleteRoom)
 }
 ```
 När en klient går in på en ny route kommer denna koden köras.
@@ -817,6 +820,12 @@ const socket = io();
 //Klient får rum från servern, pusha in det till listan roomList och ladda om sidan.
 socket.on("roomToClient", (room) => {
     roomList.push(room)
+    reloadRooms()
+})
+
+//New room deleted and sent to client
+socket.on("roomRemoved", (roomId) => {
+    roomList = roomList.filter(c => c.id != roomId)
     reloadRooms()
 })
 

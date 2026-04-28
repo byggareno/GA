@@ -38,7 +38,7 @@ function handleConnection(socket){
 
     //Joining the right room
     const baseLink = "http://" + socket.handshake.headers.host + "/"
-    const param = (socket.handshake.headers.referer.slice(baseLink.length))
+    const param = (socket.handshake.headers.referer.slice(baseLink.length)).split("?")[0]
     console.log(baseLink)
     console.log(param)
     console.log("connected to " + (socket.request.session.username || "unkown") + " at " + param);
@@ -51,6 +51,7 @@ function handleConnection(socket){
     socket.on("loadMoreChats", handleLoadMoreChats)
     socket.on("updateChat", handleUpdateChat)
     socket.on("deleteChat", handleDeleteChat)
+    socket.on("deleteRoom", handleDeleteRoom)
 }
 
 
@@ -75,7 +76,7 @@ async function handleCreateRoom(room){
     room.desc = escape(room.desc)
     //Create simpler post to send to clients in the same room
     console.log(`${this.request.session.username} created room : ${room.name}`)
-    io.emit("roomToClient", room)
+    io.to("roomList").emit("roomToClient", room)
 }
 
 //Recives chat
@@ -84,6 +85,7 @@ async function handleChat(msg){
     console.log(msg)
     //Skicka iväg de som inte är inloggade
     const tSession = this.request.session
+    if(msg.length > process.env.maxChatLen) return this.emit("error", `Chat can't be longer than ${process.env.maxChatLen} characters`)
     if(!tSession.loggedIn) return console.log("Not sure how this happend")
 
     //Create post and save to file
@@ -139,6 +141,7 @@ async function handleLoadMoreChats(event){
 
 async function  handleUpdateChat(event) {
     console.log(event)   
+    if(event.text.length > process.env.maxChatLen) return this.emit("error", `Chat can't be longer than ${process.env.maxChatLen} characters`)
 
     //Basic variables
     const tSession = this.request.session 
@@ -184,7 +187,27 @@ async function handleDeleteChat(chatId){
     io.to(socketRoom).emit("chatUpdated",post)
 }
 
+async function handleDeleteRoom(roomId){
+    console.log("Trying to delete room " + roomId)
+    //Find post, empty it and save to file
+    const tSession = this.request.session
+    let rooms = JSON.parse(await fs.readFile("data/rooms.json"))
+    let room = rooms.find(c => (c.id == roomId))
+    if(!room) return console.log("Tried to delete room with id that can't be found")
+    if(!(tSession.userId == room.owner || tSession.admin)) return console.log("Wrong account tried to delete post") 
+    rooms = rooms.filter(c => c.id != roomId)
+    await fs.writeFile("data/rooms.json", JSON.stringify(rooms, null, 3))
+    
+    //Remove posts that belong to id
+    let posts = JSON.parse(await fs.readFile("data/posts.json"))
+    posts = posts.filter(c => c.roomId != roomId)    
+    await fs.writeFile("data/posts.json", JSON.stringify(posts, null, 3))
+    console.log("Deleted room " + roomId)
 
+    
+    //Send update in posts to clients connected to relevant room
+    io.to("roomList").emit("roomRemoved",roomId)
+}
 
 //Render function
 async function render(req, title, script, main){

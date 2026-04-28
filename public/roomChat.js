@@ -343,3 +343,15 @@ socket.on("chatUpdated", (post) => {
     //console.log(post)
     //outerDiv.querySelector("#" + post.id) = generateInnerDiv(post)
 })
+
+
+//Error/Success Handling
+socket.on("error", setError)
+socket.on("success", setSuccess)
+
+function setError(error){
+    console.log(error)
+}
+function setSuccess(success){
+    console.log(success)
+}

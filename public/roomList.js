@@ -152,6 +152,7 @@ function reloadRooms(){
 
         const innerDiv  = document.createElement("div");
         innerDiv.classList.add("innerDiv")
+        innerDiv.id = el.id
 
         const divContent = `
                         <div class="innerHeader">
@@ -214,10 +215,10 @@ function reloadRooms(){
             deleteForm.addEventListener("submit", (ev) => {
                 //Lets the client handle the form instead of redirecting to a new link
                 ev.preventDefault();
-                const postId = innerDiv.id
+                const roomId = innerDiv.id
                 //If new text is not empty nor the same as the original text, send to server for update processing
-                socket.emit("deleteRoom", postId);
-                console.log("Deleted div " + innerDiv.id)
+                socket.emit("deleteRoom", roomId);
+                console.log("Deleted div " + roomId)
             });
 
 
@@ -338,7 +339,7 @@ postsButton.addEventListener("click", (ev) =>{
 })
  */
 
-//Create room code
+//Room created code
 const createRoomForm = document.querySelector("#createRoomForm")
 createRoomForm.addEventListener("submit", handleSubmit);
 function handleSubmit(ev){
@@ -353,12 +354,23 @@ function handleSubmit(ev){
     socket.emit("newRoomCreated", room)
 }
 
+
+
+
+
+
 //Koppla upp oss med websockets
 const socket = io();
 
 //New room created and sent to client
 socket.on("roomToClient", (room) => {
     roomList.push(room)
+    reloadRooms()
+})
+
+//New room deleted and sent to client
+socket.on("roomRemoved", (roomId) => {
+    roomList = roomList.filter(c => c.id != roomId)
     reloadRooms()
 })
 
